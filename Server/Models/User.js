@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 const validation = require("./Common/Validations");
 const consts = require("./Common/consts");
 
-var userSchema = module.exports =  mongoose.Schema({
+var userSchema = module.exports = mongoose.Schema({
     firstName: {
         type: String,
         required: "must enter a first name"
@@ -18,49 +18,48 @@ var userSchema = module.exports =  mongoose.Schema({
         required: "must enter a last name",
         validate: [validation.validateEmail, "The email is not valid"]
     },
-    DateEmailVerified: {
+    dateEmailVerified: {
         type: Date,
-        default: Date.now()
     },
-    HashedPassword: {
+    hashedPassword: {
         type: String, //TODO: in future add hash
         required: "must enter a password",
         validate: [validation.validatePassword, "password is invalid"]
     },
-    DatePasswordModified: {
+    datePasswordModified: {
         type: Date
     },
-    Birthday: {
+    birthday: {
         type: Date,
         required: "must have a birthday",
         validate: [validation.validateBirthday, "You can not be under the age of 5"]
     },
-    Phone: {
+    phone: {
         type: String
     },
-    PhoneCountryCode: {
+    phoneCountryCode: {
         type: String
     },
-    Address: {
-        Country: {
+    address: {
+        country: {
             type: String,
             required: "must enter a country"
         },
-        City: {
+        city: {
             type: String,
             required: "must enter a City"
         },
-        Street: {
+        street: {
             type: String,
             required: "must enter a Street"
         }
     },
-    Role: {
+    role: {
         type: String,
         default: consts.ROLES.CLIENT,
         validate: [validation.validateRole, "invalid role"]
     },
-    ImagePath: {
+    imagePath: {
         type: String,
         //TODO: add in future
     },
@@ -71,6 +70,7 @@ var userSchema = module.exports =  mongoose.Schema({
 });
 
 var User = module.exports = mongoose.model('user', userSchema);
+
 module.exports.get = function(callback, limit){
     User.find(callback).limit(limit);
 }
