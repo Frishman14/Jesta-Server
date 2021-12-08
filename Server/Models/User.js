@@ -92,6 +92,25 @@ userSchema.pre('save', function(next){
     });
 });
 
+userSchema.pre("findOneAndUpdate", function(next){
+    let query = this;
+    let update = query.getUpdate();
+    if (!update.hashedPassword) return next();
+     // generate a salt
+     bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
+        if (err) return next(err);
+    
+        // hash the password along with our new salt
+        bcrypt.hash(update.hashedPassword, salt, function(err, hash) {
+            if (err) return next(err);
+    
+            // override the cleartext password with the hashed one
+            update.hashedPassword = hash;
+            next();
+        });
+    });
+})
+
 userSchema.methods.comparePassword = function(candidatePassword, cb) {
     bcrypt.compare(candidatePassword, this.hashedPassword, function(err, isMatch) {
         if (err) return cb(err);
