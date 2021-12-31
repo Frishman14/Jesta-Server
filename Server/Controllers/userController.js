@@ -1,4 +1,5 @@
 const { query } = require("express");
+var bcrypt = require('bcrypt');
 
 User = require("../Models/User");
 
@@ -74,4 +75,21 @@ exports.updateOne = (req, res) => {
         }
         res.json({status: "success", message: "User has been updated"});
     })
+}
+
+exports.connect = (req, res) => {
+    if (!req.body.hashedPassword && !req.body.email)
+        return res.status(406).json({ status: "error", message: 'must get an email and a password'});
+    User.findOne({'email': req.body.email},'hashedPassword',function (err, user) {
+        bcrypt.compare(req.body.hashedPassword, user.hashedPassword, function(err, r){
+            if(err){
+                res.status(500).json({status: "failed", message: 'internal server error'})
+            }
+            if (r) {
+                res.json({status: "success"});
+            } else {
+                res.status(401).json({status: "failed", message: 'password is wrong!'})
+            }
+        })
+      });
 }

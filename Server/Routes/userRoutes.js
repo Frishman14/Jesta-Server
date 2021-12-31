@@ -68,5 +68,6 @@ router.route('/delete_user').post(userController.deleteOne); // route to delete 
  *              description: Internal server error
  */
 router.route('/update_user').patch(userController.updateOne); // route to update one user
+router.route('/connect').post(userController.connect);
 
 module.exports = router
