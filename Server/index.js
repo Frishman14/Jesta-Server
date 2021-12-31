@@ -6,6 +6,10 @@ const swaggerUi = require('swagger-ui-express');
 
 // app init
 const PORT = process.env.PORT || 4111;
+const swaggerUi = require("swagger-ui-express"), swaggerDocument = require("./swagger.json")
+
+
+// app init
 const app = express();
 app.use(bodyParser.urlencoded({
     extended: true
@@ -37,6 +41,9 @@ else
 
 // Routes
 app.use('/users', require("./Routes/userRoutes.js"));
+
+// run app
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // run app
 app.listen(PORT, console.log("Server start in port: " + PORT));
