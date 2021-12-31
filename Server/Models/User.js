@@ -17,7 +17,7 @@ var userSchema = module.exports = mongoose.Schema({
         unique: true,
         trim: true,
         type: String,
-        required: "must enter a last name",
+        required: "must enter an email",
         validate: [validation.validateEmail, "The email is not valid"]
     },
     dateEmailVerified: {

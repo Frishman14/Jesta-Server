@@ -5,8 +5,8 @@ User = require("../Models/User");
 exports.getAllUsers = (req, res) => {
     User.get(function (err, users){
         if (err) {
-            return res.json({
-                status: "error",
+            return res.status(500).json({
+                status: "internal server error",
                 message: err,
             })
         }
@@ -20,6 +20,9 @@ exports.getAllUsers = (req, res) => {
 
 exports.create = (req, res) => {
     var user = new User();
+    var b = new User();
+    b = req.body;
+    console.log(b);
     user.firstName = req.body.firstName;
     user.lastName = req.body.lastName;
     user.email = req.body.email;
@@ -41,9 +44,9 @@ exports.create = (req, res) => {
     }).catch(err => {
         console.log(err);
         if (err.name === 'MongoServerError' && err.code === 11000) {
-            res.status(422).json({ status: "error", message: 'Email already exist' });
+            res.status(400).json({ status: "error", message: 'Email already exist' });
         } else{
-            res.json({ status: "error", message: err});
+            res.status(400).json({ status: "error", message: err});
         }
     })
 }
