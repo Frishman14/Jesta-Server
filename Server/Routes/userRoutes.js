@@ -1,5 +1,7 @@
 const express = require('express');
 const userController =  require('../Controllers/userController');
+const authorize = require('../middlewares/authorize');
+const consts = require('../Models/Common/consts');
 var router = express.Router();
 
 /**
@@ -19,7 +21,7 @@ var router = express.Router();
  *          '500':
  *              description: Internal server error
  */
-router.route('/').get(userController.getAllUsers); // route to get all users
+router.route('/').get(authorize([consts.ROLES.EDITOR, consts.ROLES.ADMIN]),userController.getAllUsers); // route to get all users
 /**
  * @swagger
  * /users:
@@ -51,7 +53,7 @@ router.route('/').post(userController.create); // route to create a new user
  *          '500':
  *              description: Internal server error
  */
-router.route('/delete_user').post(userController.deleteOne); // route to delete one user
+router.route('/delete_user').post(authorize([consts.ROLES.EDITOR, consts.ROLES.ADMIN]),userController.deleteOne); // route to delete one user
 /**
  * @swagger
  * /users/update_user:
@@ -67,7 +69,22 @@ router.route('/delete_user').post(userController.deleteOne); // route to delete 
  *          '500':
  *              description: Internal server error
  */
-router.route('/update_user').patch(userController.updateOne); // route to update one user
+router.route('/update_user').patch(authorize(),userController.updateOne); // route to update one user
+/**
+ * @swagger
+ * /users/connect:
+ *  post:
+ *      description: Use to update user details
+ *      produces:
+ *          - application/json
+ *      responses: 
+ *          '200':
+ *              description: User has been connected with jwt token
+ *          '401':
+ *              description: password or email is wrong
+ *          '500':
+ *              description: Internal server error
+ */
 router.route('/connect').post(userController.connect);
 
 module.exports = router
