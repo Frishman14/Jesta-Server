@@ -20,18 +20,10 @@ exports.getAllUsers = (req, res) => {
 
 exports.create = (req, res) => {
     var user = new User();
-    user.firstName = req.body.firstName;
-    user.lastName = req.body.lastName;
-    user.email = req.body.email;
-    user.hashedPassword = req.body.hashedPassword;
-    user.birthday = req.body.birthday;
-    user.phone = req.body.phone;
-    user.phoneCountryCode = req.body.phoneCountryCode;
-    user.address.country = req.body.country;
-    user.address.city = req.body.city;
-    user.address.street = req.body.street;
-    user.role = req.body.role;
-    user.imagePath = req.body.imagePath;
+    for (const property in req.body){
+        user[property] = req.body[property]
+    }
+    console.log(user)
     user.save().then(savedUser => {
         res.json({
             status: "success",
