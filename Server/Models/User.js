@@ -26,6 +26,7 @@ var userSchema = module.exports = mongoose.Schema({
     hashedPassword: {
         type: String, //TODO: in future add hash
         required: "must enter a password",
+        select: false,
         validate: [validation.validatePassword, "password is invalid"]
     },
     datePasswordModified: {

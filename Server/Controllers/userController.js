@@ -1,4 +1,7 @@
 const { query } = require("express");
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const config = require('../config.json');
 
 User = require("../Models/User");
 
@@ -74,4 +77,21 @@ exports.updateOne = (req, res) => {
         }
         res.json({status: "success", message: "User has been updated"});
     })
+}
+
+exports.connect = (req, res) => {
+    if (!req.body.hashedPassword && !req.body.email)
+        return res.status(406).json({ status: "error", message: 'must get an email and a password'});
+    User.findOne({'email': req.body.email},'hashedPassword _id role',function (err, user) {
+        if(!user){res.status(400).json({status: "failed", message: 'user is not exist'})}
+        bcrypt.compare(req.body.hashedPassword, user.hashedPassword, function(e, r){
+            if(err || e){ res.status(500).json({status: "failed", message: 'internal server error'}) }
+            else if (r) { 
+                console.log(user)
+                const token = jwt.sign({ sub: user.id, role: user.role }, config.secret);
+                res.json({status: "success", token}); 
+            } 
+            else { res.status(401).json({status: "failed", message: 'password is wrong!'}) }
+        })
+      });
 }
