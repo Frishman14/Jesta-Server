@@ -21,7 +21,7 @@ const validateBirthday = function(birthday) {
 
 const validateRole = function(role) {
     for (let r in consts.ROLES){
-        if (role == r)
+        if (role == consts.ROLES[r])
             return true;
     }
     return false;
