@@ -88,7 +88,7 @@ exports.connect = (req, res) => {
             if(err || e){ res.status(500).json({status: "failed", message: 'internal server error'}) }
             else if (r) { 
                 console.log(user)
-                const token = jwt.sign({ sub: user.id, role: user.role }, config.secret);
+                const token = jwt.sign({ sub: user.id, role: user.role }, config.secret/*delete comment in production, {expiresIn: "12h"}*/);
                 res.json({status: "success", token}); 
             } 
             else { res.status(401).json({status: "failed", message: 'password is wrong!'}) }
