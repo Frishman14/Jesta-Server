@@ -2,7 +2,9 @@ const { query } = require("express");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const config = require('../config.json');
-
+const { ApolloServer, gql } = require('apollo-server');
+const { buildSchema } = require('graphql');
+const { Query } = require("mongoose");
 User = require("../Models/User");
 
 exports.getAllUsers = (req, res) => {
@@ -94,4 +96,36 @@ exports.connect = (req, res) => {
             else { res.status(401).json({status: "failed", message: 'password is wrong!'}) }
         })
       });
+}
+
+exports.typeDefs = gql`
+                    type Address {
+                        country: String
+                        city: String
+                        street: String
+                    }
+                    type User {
+                        _id: String
+                        firstName: String
+                        lastName: String
+                        birthday: String
+                        email: String
+                        dateEmailVerified: String
+                        hashedPassword: String
+                        datePasswordModified: String
+                        phone: String
+                        address: Address
+                        role: String
+                        imagePath: String
+                        created_date: String
+                    }
+                    type Query {
+                        users: [User]
+                    }
+                    `;
+
+exports.resolvers = {
+    Query: {
+        users: async() => await User.find({}).exec()
+    },
 }

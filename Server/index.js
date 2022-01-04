@@ -1,18 +1,21 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
+// const bodyParser = require("body-parser");
+const { ApolloServer, gql } = require('apollo-server');
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const User = require('./Models/User');
+const {typeDefs, resolvers} = require('./Controllers/userController');
 
 // app init
 const PORT = process.env.PORT || 4111;
 
 // app init
 const app = express();
-app.use(bodyParser.urlencoded({
-    extended: true
-}))
-app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({
+//     extended: true
+// }))
+// app.use(bodyParser.json());
 
 // swagger Init
 const swaggerOptions = {
@@ -41,5 +44,9 @@ else
 app.use('/users', require("./Routes/userRoutes.js"));
 
 // run app
-app.listen(PORT, console.log("Server start in port: " + PORT));
+const server = new ApolloServer({ typeDefs, resolvers });
+server.listen().then(({url}) => {
+    console.log(`server ready at ${url}`);
+});
+//app.listen(PORT, console.log("Server start in port: " + PORT));
 
