@@ -2,7 +2,7 @@ const { query } = require("express");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const config = require('../config.json');
-const { ApolloServer, gql } = require('apollo-server');
+const { ApolloServer, gql } = require('apollo-server-express');
 const { buildSchema } = require('graphql');
 const { Query } = require("mongoose");
 User = require("../Models/User");
@@ -121,11 +121,19 @@ exports.typeDefs = gql`
                     }
                     type Query {
                         users: [User]
+                        user: User
+                    }
+                    type Mutation {
+                        addUser(firstName: String!, lastName: String!, birthday: String, email: String, password: String, city: String, street: String, country: String): User
                     }
                     `;
 
 exports.resolvers = {
     Query: {
-        users: async() => await User.find({}).exec()
+        users: async() => await User.find({}).exec(),
+        user: async() => await User.findOne({}).exec(),
     },
+    Mutation: {
+        addUser: async(firstName, lastName, birthday, email, password, city, street, country) => console.log()
+    }
 }
