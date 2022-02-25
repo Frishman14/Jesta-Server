@@ -1,28 +1,20 @@
-const jwt = require('express-jwt');
-const { secret } = require('../config.json');
+const jwt = require('jsonwebtoken');
+const {secret} = require('../config.json');
+const {ROLES} = require('../Models/Common/consts');
 
-function authorize(roles = []) {
-    // roles param can be a single role string (e.g. Role.Client or 'Client') 
-    // or an array of roles (e.g. [Role.Admin, Role.Client] or ['Admin', 'Client'])
-    if (typeof roles === 'string') {
-        roles = [roles];
+const decodeToken = (req) => {
+    const header = req.headers.authorization;
+    if (header) {
+        const token = header.replace('Bearer ', '');
+        return jwt.verify(token, secret, function (err, decoded) {
+            return decoded;
+        });
     }
-
-    return [
-        // authenticate JWT token and attach user to request object (req.user)
-        jwt({ secret, algorithms: ['HS256'] }),
-
-        // authorize based on user role
-        (req, res, next) => {
-            if (roles.length && !roles.includes(req.user.role)) {
-                // user's role is not authorized
-                return res.status(401).json({ message: 'Unauthorized' });
-            }
-
-            // authentication and authorization successful
-            next();
-        }
-    ];
+    return null;
 }
 
-module.exports = authorize;
+const isAuthenticated = (user, roleLevel = ROLES.CLIENT) => {
+    return user.role === roleLevel || user.role === ROLES.ADMIN;
+}
+
+module.exports = {decodeToken, isAuthenticated}

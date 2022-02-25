@@ -1,8 +1,8 @@
-var mongoose = require('mongoose');
-var bcrypt = require('bcrypt');
+const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 const SALT_WORK_FACTOR = 10
 const validation = require("./Common/Validations");
-const consts = require("./Common/consts");
+const constants = require("./Common/consts");
 
 var userSchema = module.exports = mongoose.Schema({
     firstName: {
@@ -59,7 +59,7 @@ var userSchema = module.exports = mongoose.Schema({
     },
     role: {
         type: String,
-        default: consts.ROLES.CLIENT,
+        default: constants.ROLES.CLIENT,
         validate: [validation.validateRole, "invalid role"]
     },
     imagePath: {
