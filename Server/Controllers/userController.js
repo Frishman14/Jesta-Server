@@ -1,139 +1,77 @@
-const { query } = require("express");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const config = require('../config.json');
-const { ApolloServer, gql } = require('apollo-server-express');
-const { buildSchema } = require('graphql');
-const { Query } = require("mongoose");
+const { errorDuplicateKeyHandler } = require('./errorHandlers');
 User = require("../Models/User");
 
-exports.getAllUsers = (req, res) => {
-    User.get(function (err, users){
-        if (err) {
-            return res.json({
-                status: "error",
-                message: err,
-            })
+exports.createOne = async (inputUser) => {
+    let userToCreate = inputUser.userParams;
+    let address = {country: userToCreate.country, city: userToCreate.city, street: userToCreate.street}
+    delete userToCreate.country;
+    delete userToCreate.city;
+    delete userToCreate.street;
+    userToCreate.address = address;
+    let user = new User(userToCreate);
+    return await user.save().then(savedUser => {
+        console.log("success added a new user: " + savedUser) //TODO change to debug message in watson
+        userToCreate.password = userToCreate.hashedPassword;
+        return this.connect(userToCreate);
+    }).catch(error => {
+        //TODO change to watson
+        console.log("failed to add user " + error.message)
+        let handledError = errorDuplicateKeyHandler(error)
+        return new Error(handledError)
+    })
+}
+
+exports.deleteOne = async (userParams) => {
+    if (!userParams._id && !userParams.email)
+        return new Error("must get user _id or email");
+    return await User.deleteOne(userParams).then(deletedUser => {
+        if (deletedUser.deletedCount === 0){
+            console.log("user is not exist")
+            return new Error("user is not exist");
         }
-        res.json({
-            status: "success",
-            message: "Users retrieved successfully",
-            data: users
-        })
+        console.log("success deleted user") // TODO: add watson logger
+        return "success";
+    })
+};
+
+exports.updateOne = async (params) => {
+    if (!params._id && !params.email)
+        return new Error("must get user _id or email");
+
+    let filter = {};
+    params._id !== undefined ? filter["_id"] = params._id : "";
+    params.email !== undefined ? filter["email"] = params.email : "";
+    return await User.updateOne(filter, params.updatedUser, {runValidators: true}).then((user) => {
+        if (!user) {
+            return new Error("user is not found");
+        }
+        console.log("success update user") //TODO change to watson
+        return "success";
+    }).catch((error) => {
+    console.log(error) //TODO change to watson
+    let handledError = errorDuplicateKeyHandler(error)
+    return new Error(handledError)
     });
 }
 
-exports.create = (req, res) => {
-    var user = new User();
-    for (const property in req.body){
-        user[property] = req.body[property]
-    }
-    console.log(user)
-    user.save().then(savedUser => {
-        res.json({
-            status: "success",
-            message: "user has been created",
-            data: savedUser
-        });
-    }).catch(err => {
-        console.log(err);
-        if (err.name === 'MongoServerError' && err.code === 11000) {
-            res.status(422).json({ status: "error", message: 'Email already exist' });
-        } else{
-            res.json({ status: "error", message: err});
+exports.connect = async (userDetails) => {
+    if (!userDetails.password || !userDetails.email)
+        return new Error("must get email and a password");
+    return await User.findOne({'email': userDetails.email}, 'hashedPassword _id role').then(async (user) => {
+        if (!user) {
+            return new Error("user is not exist");
         }
-    })
+        const validPassword = await bcrypt.compare(userDetails.password, user.hashedPassword);
+        if(validPassword){
+            return generateToken(user.id, user.role);
+        } // TODO add time limit
+        return new Error("password is wrong");
+    });
 }
 
-exports.deleteOne = (req, res) => {
-    if (!req.body._id && !req.body.email)
-        return res.status(406).json({ status: "error", message: 'User to delete must contain unique value'});
-    filter = {};
-    req.body._id != undefined ? filter["_id"] = req.body._id : ""; 
-    req.body.email != undefined ? filter["email"] = req.body.email : "";
-    User.deleteOne(filter).then(deletedUser => {
-            if(deletedUser.deletedCount == 0)
-                return res.json({status: "failed", message: "User has not found"});
-            res.json({status: "success", message: "User has been deleted"});
-        }).catch(err => {
-            console.log(err);
-            res.status(500).json({status: "error", message: 'Server failed'});
-        });
-};
-
-exports.updateOne = (req, res) => {
-    if (!req.body._id && !req.body.email)
-        return res.status(406).json({ status: "error", message: 'User to update must contain Id'});
-    else if (req.body.updateAttr._id)
-        return res.status(406).json({ status: "error", message: 'Canot update _Id'});
-    filter = {};
-    req.body._id != undefined ? filter["_id"] = req.body._id : ""; 
-    req.body.email != undefined ? filter["email"] = req.body.email : "";
-
-    User.findOneAndUpdate(filter, req.body.updateAttr , {runValidators : true}, function(error, doc){
-        if(error){
-            console.log(error)
-            return res.status(500).json({status: "error", message: 'Server failed'});
-        } else if (!doc){
-            return res.json({status: "failed", message: "User has not found"});
-        }
-        res.json({status: "success", message: "User has been updated"});
-    })
-}
-
-exports.connect = (req, res) => {
-    if (!req.body.hashedPassword && !req.body.email)
-        return res.status(406).json({ status: "error", message: 'must get an email and a password'});
-    User.findOne({'email': req.body.email},'hashedPassword _id role',function (err, user) {
-        if(!user){res.status(400).json({status: "failed", message: 'user is not exist'})}
-        bcrypt.compare(req.body.hashedPassword, user.hashedPassword, function(e, r){
-            if(err || e){ res.status(500).json({status: "failed", message: 'internal server error'}) }
-            else if (r) { 
-                console.log(user)
-                const token = jwt.sign({ sub: user.id, role: user.role }, config.secret);
-                res.json({status: "success", token}); 
-            } 
-            else { res.status(401).json({status: "failed", message: 'password is wrong!'}) }
-        })
-      });
-}
-
-exports.typeDefs = gql`
-                    type Address {
-                        country: String
-                        city: String
-                        street: String
-                    }
-                    type User {
-                        _id: String
-                        firstName: String
-                        lastName: String
-                        birthday: String
-                        email: String
-                        dateEmailVerified: String
-                        hashedPassword: String
-                        datePasswordModified: String
-                        phone: String
-                        address: Address
-                        role: String
-                        imagePath: String
-                        created_date: String
-                    }
-                    type Query {
-                        users: [User]
-                        user: User
-                    }
-                    type Mutation {
-                        addUser(firstName: String!, lastName: String!, birthday: String, email: String, password: String, city: String, street: String, country: String): User
-                    }
-                    `;
-
-exports.resolvers = {
-    Query: {
-        users: async() => await User.find({}).exec(),
-        user: async() => await User.findOne({}).exec(),
-    },
-    Mutation: {
-        addUser: async(firstName, lastName, birthday, email, password, city, street, country) => console.log()
-    }
+const generateToken = async (id, role) => {
+    return {token : await jwt.sign({sub: id, role: role}, config.secret, { algorithm: "HS256", expiresIn: "1d" })}
 }
