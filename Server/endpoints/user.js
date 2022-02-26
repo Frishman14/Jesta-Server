@@ -54,31 +54,31 @@ exports.typeDefs = gql`
                         token: String
                     }
                     type Query {
-                        getUsers: [User]
+                        getAllUsers: [User]
                         getUser(_id: String, firstName: String, lastName: String, email: String): User
                     }
                     type Mutation {
-                        signUp(userParams: UserCreateInput): JWT
+                        signUpUser(userParams: UserCreateInput): JWT
                         deleteUser(_id: String, email: String): String
                         updateUser(_id: String, email: String, updatedUser: UserUpdateInput): String
-                        connect(email: String, password: String): JWT
+                        connectUser(email: String, password: String): JWT
                     }
                     `;
 
 exports.resolvers = {
     Query: {
-        getUsers: async (parent, args, context, info) => { return isAuthenticated(context, ROLES.ADMIN) === true ? await User.find({}).exec(): new AuthenticationError("unauthorized"); },
-        getUser: async (parent, args, context, info) =>  await User.findOne(args).exec(),
+        getAllUsers: async (parent, args, context, info) => { return isAuthenticated(context, ROLES.CLIENT) === true ? await User.find({}).exec(): new AuthenticationError("unauthorized"); },
+        getUser: async (parent, filterArgs, context, info) =>  { return isAuthenticated(context, ROLES.CLIENT) === true ? await User.findOne(filterArgs).exec(): new AuthenticationError("unauthorized"); },
     },
     Mutation: {
-        signUp: (parent, args, context, info) => createOne(args),
+        signUpUser: (parent, args, context, info) => createOne(args),
         deleteUser: (parent, args, context, info) => isAuthenticated(context, ROLES.CLIENT) === true ? deleteOne(args) : new AuthenticationError("unauthorized"),
         updateUser: (parent, args, context, info) => isAuthenticated(context, ROLES.CLIENT) === true ? updateOne(args) : new AuthenticationError("unauthorized"),
-        connect: (parent, args, context, info) => connect(args),
+        connectUser: (parent, args, context, info) => connect(args),
         // TODO: read about subscription - today *
-        // TODO: add hash to password
         // TODO: add tests - tomorrow
         // TODO: add watson logger - tomorrow
         // TODO: think how to DRY auth
+        // TODO: add get num of users
     }
 }

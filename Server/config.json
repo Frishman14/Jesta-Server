@@ -1,3 +1,4 @@
 {
-    "secret" : "BS1234#$@asDVxVSDF124ASDxcvxcVWD!asdaf!$1995"
+    "secret" : "BS1234#$@asDVxVSDF124ASDxcvxcVWD!asdaf!$1995",
+    "env" : "development"
 }

@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const { ApolloServer } = require('apollo-server-express');
 const { ApolloServerPluginDrainHttpServer } = require("apollo-server-core")
 const http = require("http");
-const expressJwt = require("express-jwt");
+const logger = require("./logger");
 const { typeDefs, resolvers } = require('./endpoints/user');
 const { decodeToken } = require('./middlewares/authorize');
 
@@ -16,11 +16,10 @@ async function startApolloServer(typeDefs, resolvers){
     const app = express();
     const httpServer = http.createServer(app);
     mongoose.connect('mongodb://localhost/Jesta', { useNewUrlParser: true});
-    var db = mongoose.connection;
-    if(!db)
-        console.log('db error');
+    if(!mongoose.connection)
+        logger.error('db error');
     else
-        console.log('db connected succesfully');
+        logger.info('db connected successfully');
     const server = new ApolloServer({
         typeDefs,
         resolvers,
@@ -35,7 +34,7 @@ async function startApolloServer(typeDefs, resolvers){
         path: '/'
     });
     await new Promise(resolve => httpServer.listen({ port: PORT}, resolve));
-    console.log(`Server ready at http://localhost:${PORT}${server.graphqlPath}`);
+    logger.info(`Server ready at http://localhost:${PORT}${server.graphqlPath}`);
 }
 
 startApolloServer(typeDefs, resolvers).catch(error => console.log(error));

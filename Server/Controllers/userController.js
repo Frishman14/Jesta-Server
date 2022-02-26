@@ -2,7 +2,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const config = require('../config.json');
 const { errorDuplicateKeyHandler } = require('./errorHandlers');
-User = require("../Models/User");
+const logger = require("../logger");
+const User = require("../Models/User");
 
 exports.createOne = async (inputUser) => {
     let userToCreate = inputUser.userParams;
@@ -13,12 +14,12 @@ exports.createOne = async (inputUser) => {
     userToCreate.address = address;
     let user = new User(userToCreate);
     return await user.save().then(savedUser => {
-        console.log("success added a new user: " + savedUser) //TODO change to debug message in watson
+        logger.info("added a new user " + userToCreate.email)
         userToCreate.password = userToCreate.hashedPassword;
         return this.connect(userToCreate);
     }).catch(error => {
-        //TODO change to watson
-        console.log("failed to add user " + error.message)
+        logger.error("failed to add user :" + error.message)
+
         let handledError = errorDuplicateKeyHandler(error)
         return new Error(handledError)
     })
@@ -29,10 +30,10 @@ exports.deleteOne = async (userParams) => {
         return new Error("must get user _id or email");
     return await User.deleteOne(userParams).then(deletedUser => {
         if (deletedUser.deletedCount === 0){
-            console.log("user is not exist")
+            logger.info("user is not exist " + userParams.email);
             return new Error("user is not exist");
         }
-        console.log("success deleted user") // TODO: add watson logger
+        console.info("deleted user " + userParams.email)
         return "success";
     })
 };
@@ -45,13 +46,13 @@ exports.updateOne = async (params) => {
     params._id !== undefined ? filter["_id"] = params._id : "";
     params.email !== undefined ? filter["email"] = params.email : "";
     return await User.updateOne(filter, params.updatedUser, {runValidators: true}).then((user) => {
-        if (!user) {
+        if (!user.acknowledged) {
             return new Error("user is not found");
         }
-        console.log("success update user") //TODO change to watson
+        logger.info("updated user " + params.email);
         return "success";
     }).catch((error) => {
-    console.log(error) //TODO change to watson
+    logger.error("failed to update user " + error)
     let handledError = errorDuplicateKeyHandler(error)
     return new Error(handledError)
     });
@@ -67,11 +68,11 @@ exports.connect = async (userDetails) => {
         const validPassword = await bcrypt.compare(userDetails.password, user.hashedPassword);
         if(validPassword){
             return generateToken(user.id, user.role);
-        } // TODO add time limit
+        }
         return new Error("password is wrong");
     });
 }
 
 const generateToken = async (id, role) => {
-    return {token : await jwt.sign({sub: id, role: role}, config.secret, { algorithm: "HS256", expiresIn: "1d" })}
+    return {token : "Bearer " + await jwt.sign({sub: id, role: role}, config.secret, { algorithm: "HS256", expiresIn: "1d" })}
 }
