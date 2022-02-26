@@ -45,7 +45,7 @@ exports.updateOne = async (params) => {
     params._id !== undefined ? filter["_id"] = params._id : "";
     params.email !== undefined ? filter["email"] = params.email : "";
     return await User.updateOne(filter, params.updatedUser, {runValidators: true}).then((user) => {
-        if (!user) {
+        if (!user.acknowledged) {
             return new Error("user is not found");
         }
         logger.info("updated user " + params.email);

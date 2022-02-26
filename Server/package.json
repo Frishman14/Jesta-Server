@@ -4,6 +4,7 @@
   "description": "this package include Jesta App backend",
   "main": "index.js",
   "scripts": {
+    "test": "jest --coverage",
     "dev": "nodemon index.js",
     "start": "node index.js"
   },
