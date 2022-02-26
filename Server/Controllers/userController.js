@@ -19,7 +19,10 @@ async function uploadFile(file, fullPath, dirPath) {
 }
 
 exports.createOne = async (inputUser) => {
-    const uploadImage = uploadFile(inputUser.file, PROFILE_IMAGES_PATH, PROFILE_IMAGE)
+    if(inputUser.file){
+        const uploadImage = uploadFile(inputUser.file, PROFILE_IMAGES_PATH, PROFILE_IMAGE);
+        await uploadImage.then(result => user.imagePath = result);
+    }
     let userToCreate = inputUser.userParams;
     let address = {country: userToCreate.country, city: userToCreate.city, street: userToCreate.street}
     delete userToCreate.country;
