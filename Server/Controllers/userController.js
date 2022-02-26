@@ -30,7 +30,6 @@ exports.createOne = async (inputUser) => {
     delete userToCreate.street;
     userToCreate.address = address;
     let user = new User(userToCreate);
-    await uploadImage.then(result => user.imagePath = result);
     return await user.save().then(savedUser => {
         logger.info("added a new user " + userToCreate.email)
         userToCreate.password = userToCreate.hashedPassword;
