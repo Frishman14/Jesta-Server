@@ -1,6 +1,6 @@
 # Jesta
 
-Every part of the project is in his own directory (Server, Android app, Web app)
+This repo is for Jesta NODE Server
 
 # Server
 
