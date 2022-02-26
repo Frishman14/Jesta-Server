@@ -27,7 +27,7 @@ jobs:
     - name: Start MongoDB
       uses: supercharge/mongodb-github-action@1.7.0
       with:
-        mongodb-version: ${{ matrix.mongodb-version }}
+        mongodb-version:  5.0.4
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
