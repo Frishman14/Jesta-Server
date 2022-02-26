@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --coverage",
+    "build": "npm i",
     "dev": "nodemon index.js",
-    "start": "node index.js"
+    "start": "npm i && node index.js"
   },
   "author": "",
   "license": "ISC",
