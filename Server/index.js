@@ -7,8 +7,6 @@ const logger = require("./logger");
 const { typeDefs, resolvers } = require('./endpoints/user');
 const { decodeToken } = require('./middlewares/authorize');
 
-// TODO: add configuration file for environments
-// TODO: add winston logger
 const PORT = process.env.PORT || 4111;
 
 // app init
