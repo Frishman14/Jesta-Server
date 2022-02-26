@@ -98,7 +98,7 @@ dist
 
 # Serverless directories
 .serverless/
-
+./Server/data/
 # FuseBox cache
 .fusebox/
 

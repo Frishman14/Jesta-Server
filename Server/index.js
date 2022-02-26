@@ -6,12 +6,15 @@ const http = require("http");
 const logger = require("./logger");
 const { typeDefs, resolvers } = require('./endpoints/user');
 const { decodeToken } = require('./middlewares/authorize');
+const { graphqlUploadExpress } = require('graphql-upload');
 
 const PORT = process.env.PORT || 4111;
 
 // app init
 async function startApolloServer(typeDefs, resolvers){
     const app = express();
+    app.use(express.static(__dirname + '/data/'))
+    app.use(graphqlUploadExpress());
     const httpServer = http.createServer(app);
     mongoose.connect('mongodb://localhost/Jesta', { useNewUrlParser: true});
     if(!mongoose.connection)
@@ -29,7 +32,7 @@ async function startApolloServer(typeDefs, resolvers){
     await server.start();
     server.applyMiddleware({
         app,
-        path: '/'
+        path: '/graphql/'
     });
     await new Promise(resolve => httpServer.listen({ port: PORT}, resolve));
     logger.info(`Server ready at http://localhost:${PORT}${server.graphqlPath}`);

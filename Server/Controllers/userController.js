@@ -4,8 +4,22 @@ const config = require('../config.json');
 const { errorDuplicateKeyHandler } = require('./errorHandlers');
 const logger = require("../logger");
 const User = require("../Models/User");
+const { finished } = require('stream/promises');
+const {PROFILE_IMAGES_PATH, PROFILE_IMAGE} = require('../consts');
+
+
+async function uploadFile(file, fullPath, dirPath) {
+    let { createReadStream, filename } = await file;
+    let stream = createReadStream();
+    let fullFileName =  new Date().getTime() + filename
+    let out = require('fs').createWriteStream(fullPath + fullFileName);
+    stream.pipe(out);
+    await finished(out);
+    return dirPath + fullFileName;
+}
 
 exports.createOne = async (inputUser) => {
+    const uploadImage = uploadFile(inputUser.file, PROFILE_IMAGES_PATH, PROFILE_IMAGE)
     let userToCreate = inputUser.userParams;
     let address = {country: userToCreate.country, city: userToCreate.city, street: userToCreate.street}
     delete userToCreate.country;
@@ -13,6 +27,7 @@ exports.createOne = async (inputUser) => {
     delete userToCreate.street;
     userToCreate.address = address;
     let user = new User(userToCreate);
+    await uploadImage.then(result => user.imagePath = result);
     return await user.save().then(savedUser => {
         logger.info("added a new user " + userToCreate.email)
         userToCreate.password = userToCreate.hashedPassword;
