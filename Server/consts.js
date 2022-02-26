@@ -1,0 +1,7 @@
+// paths
+const PROFILE_IMAGE = "/profile_images/"
+const STATIC_FILE_PATHS = "./data"
+const PROFILE_IMAGES_PATH = STATIC_FILE_PATHS + PROFILE_IMAGE
+
+
+module.exports = {PROFILE_IMAGE, STATIC_FILE_PATHS, PROFILE_IMAGES_PATH}

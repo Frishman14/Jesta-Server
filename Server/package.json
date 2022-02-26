@@ -22,6 +22,7 @@
     "express-jwt": "^6.1.0",
     "graphql": "^16.2.0",
     "graphql-iso-date": "^3.6.1",
+    "graphql-upload": "^13.0.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.1.6",
     "nodemon": "^2.0.15",
