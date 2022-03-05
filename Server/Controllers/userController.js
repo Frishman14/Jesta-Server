@@ -54,7 +54,7 @@ exports.deleteOne = async (userParams) => {
             logger.info("user is not exist " + userParams.email);
             return new Error("user is not exist");
         }
-        console.info("deleted user " + userParams.email)
+        logger.info("deleted user " + userParams.email)
         return "success";
     })
 };
