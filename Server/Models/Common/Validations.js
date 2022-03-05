@@ -25,7 +25,25 @@ const validateRole = function(role) {
     return false;
 }
 
+const validateResult = function(result) {
+    for (let r in consts.RESULT){
+        if (result === consts.RESULT[r])
+            return true;
+    }
+    return false;
+}
+
+const validateReportsStatuses = function(status) {
+    for (let r in consts.REPORT_STATUS){
+        if (status === consts.REPORT_STATUS[r])
+            return true;
+    }
+    return false;
+}
+
 exports.validateRole = validateRole
+exports.validateResult = validateResult
+exports.validateReportsStatuses = validateReportsStatuses
 exports.validateBirthday = validateBirthday
 exports.validatePassword = validatePassword
 exports.validateEmail = validateEmail

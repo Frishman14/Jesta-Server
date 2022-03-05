@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const constants = require("../Common/consts");
+const validation = require("../Common/Validations");
 
 let reportSchema = module.exports = mongoose.Schema({
     favorId: {
@@ -23,9 +24,11 @@ let reportSchema = module.exports = mongoose.Schema({
     status: {
         type: String,
         default: constants.REPORT_STATUS.PENDING,
+        validate: [validation.validateReportsStatuses, "invalid status"]
     },
     result: {
         type: String,
+        validate: [validation.validateResult, "invalid result"]
     },
     dateCreated: {
         type: Date,
