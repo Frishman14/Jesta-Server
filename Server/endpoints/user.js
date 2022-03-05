@@ -60,6 +60,7 @@ exports.typeDefs = gql`
                     }
                     type Mutation {
                         signUpUser(userParams: UserCreateInput, file: Upload): JWT
+                        signUpAdmin(userParams: UserCreateInput, file: Upload): JWT
                         deleteUser(_id: String, email: String): String
                         updateUser(_id: String, email: String, updatedUser: UserUpdateInput): String
                         connectUser(email: String, password: String): JWT
@@ -69,16 +70,15 @@ exports.typeDefs = gql`
 exports.resolvers = {
     Upload: GraphQLUpload,
     Query: {
-        getAllUsers: async (parent, args, context) => { return isAuthenticated(context, ROLES.CLIENT) === true ? await User.find({}).exec(): new AuthenticationError("unauthorized"); },
-        getUser: async (parent, filterArgs, context) =>  { return isAuthenticated(context, ROLES.CLIENT) === true ? await User.findOne(filterArgs).exec(): new AuthenticationError("unauthorized"); },
+        getAllUsers: async (parent, args, context) => { return isAuthenticated(context) === true ? await User.find({}).exec(): new AuthenticationError("unauthorized"); },
+        getUser: async (parent, filterArgs, context) =>  { return isAuthenticated(context) === true ? await User.findOne(filterArgs).exec(): new AuthenticationError("unauthorized"); },
     },
     Mutation: {
         signUpUser: (parent, args) => createOne(args),
-        deleteUser: (parent, args, context) => isAuthenticated(context, ROLES.CLIENT) ? deleteOne(args) : new AuthenticationError("unauthorized"),
-        updateUser: (parent, args, context) => isAuthenticated(context, ROLES.CLIENT) ? updateOne(args) : new AuthenticationError("unauthorized"),
+        deleteUser: (parent, args, context) => isAuthenticated(context) ? deleteOne(args) : new AuthenticationError("unauthorized"),
+        updateUser: (parent, args, context) => isAuthenticated(context) ? updateOne(args) : new AuthenticationError("unauthorized"),
         connectUser: (parent, args) => connect(args),
         SignUpAdmin: (parent, args, context) => isAuthenticated(context, ROLES.ADMIN) ? createOne(args, true) : new AuthenticationError("unauthorized"),
-        // TODO: think how to DRY auth
         // TODO: add get num of users
     }
 }
