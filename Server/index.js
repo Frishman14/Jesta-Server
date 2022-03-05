@@ -16,7 +16,7 @@ async function startApolloServer(typeDefs, resolvers){
     app.use(express.static(__dirname + '/data/'))
     app.use(graphqlUploadExpress());
     const httpServer = http.createServer(app);
-    mongoose.connect('mongodb://localhost/Jesta', { useNewUrlParser: true});
+    mongoose.connect('mongodb://127.0.0.1/Jesta', { useNewUrlParser: true});
     if(!mongoose.connection)
         logger.error('db error');
     else
