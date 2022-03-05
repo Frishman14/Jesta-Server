@@ -12,4 +12,6 @@ the server is running. (Check there is no errors in terminal)
 
 WATCHOUT: for now you should run your own mongodb instance, in the future it will be on Atlas cloud
 
+default admin details : email = "admin@jesta.com" password = "aA123456"
+
 for Watching the api go to http:localhost:4111/graphql
