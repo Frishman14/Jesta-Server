@@ -5,11 +5,11 @@ const { ApolloServer } = require('apollo-server-express');
 const { ApolloServerPluginDrainHttpServer } = require("apollo-server-core")
 const http = require("http");
 const logger = require("./logger");
-const { typeDefs, resolvers } = require('./endpoints/user');
+const { userTypeDefs, userResolvers } = require('./endpoints/user');
 const { favorResolvers, favorTypeDefs} = require('./endpoints/favors');
 const { decodeToken } = require('./middlewares/authorize');
 const { graphqlUploadExpress } = require('graphql-upload');
-const DateTime = require("graphql-iso-date/dist/dateTime");
+const User = require("./Models/User");
 
 const PORT = process.env.PORT || 4111;
 
@@ -27,18 +27,24 @@ async function startApolloServer(typeDefs, resolvers){
     }
     else
         logger.info('db connected successfully');
-    await createOne({
-        userParams: {
-            firstName: "admin",
-            lastName: "admin",
-            birthday: "1995-08-29T03:00:00",
-            email: "admin@jesta.com",
-            hashedPassword: "aA123456",
-            country: "Israel",
-            city: "Tel-Aviv",
-            street: "ben-zvi"
+
+    User.find({email: "admin@jesta.com"}, function(error, user){
+        if(user.length === 0){
+            createOne({
+                userParams: {
+                    firstName: "admin",
+                    lastName: "admin",
+                    birthday: "1995-08-29T03:00:00",
+                    email: "admin@jesta.com",
+                    hashedPassword: "aA123456",
+                    country: "Israel",
+                    city: "Tel-Aviv",
+                    street: "ben-zvi"
+                }
+            }, true)
         }
-    }, true)
+    });
+
     const server = new ApolloServer({
         typeDefs,
         resolvers,
@@ -57,4 +63,4 @@ async function startApolloServer(typeDefs, resolvers){
     logger.info(`Server ready at http://localhost:${PORT}${server.graphqlPath}`);
 }
 
-startApolloServer([typeDefs, favorTypeDefs], [resolvers, favorResolvers]).catch(error => logger.error(error));
+startApolloServer([userTypeDefs, favorTypeDefs], [userResolvers, favorResolvers]).catch(error => logger.error(error));

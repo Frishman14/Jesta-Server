@@ -5,7 +5,7 @@ const { ROLES } = require('../Models/Common/consts');
 const { createOne, deleteOne, updateOne, connect } = require("../Controllers/userController");
 const { GraphQLUpload } = require('graphql-upload');
 
-exports.typeDefs = gql`
+exports.userTypeDefs = gql`
                     scalar DateTime
                     scalar Upload
                     type Address {
@@ -67,7 +67,7 @@ exports.typeDefs = gql`
                     }
                     `;
 
-exports.resolvers = {
+exports.userResolvers = {
     Upload: GraphQLUpload,
     Query: {
         getAllUsers: async (parent, args, context) => { return isAuthenticated(context) ? await User.find({}).exec(): new AuthenticationError("unauthorized"); },
