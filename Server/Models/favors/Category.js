@@ -7,7 +7,8 @@ let CategorySchema = module.exports = mongoose.Schema({
         required: "must enter a category name"
     },
     dateLastModified: {
-        type: Date
+        type: Date,
+        default: Date.now(),
     },
 });
 

@@ -95,5 +95,5 @@ exports.connect = async (userDetails) => {
 }
 
 const generateToken = async (id, role) => {
-    return {token : "Bearer " + await jwt.sign({sub: id, role: role}, config.secret, { algorithm: "HS256", expiresIn: "1d" })}
+    return {token : "Bearer " + await jwt.sign({sub: id, role: role}, config.secret, { algorithm: "HS256", expiresIn: "7d" })}
 }
