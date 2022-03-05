@@ -74,10 +74,10 @@ exports.resolvers = {
     },
     Mutation: {
         signUpUser: (parent, args) => createOne(args),
-        deleteUser: (parent, args, context) => isAuthenticated(context, ROLES.CLIENT) === true ? deleteOne(args) : new AuthenticationError("unauthorized"),
-        updateUser: (parent, args, context) => isAuthenticated(context, ROLES.CLIENT) === true ? updateOne(args) : new AuthenticationError("unauthorized"),
+        deleteUser: (parent, args, context) => isAuthenticated(context, ROLES.CLIENT) ? deleteOne(args) : new AuthenticationError("unauthorized"),
+        updateUser: (parent, args, context) => isAuthenticated(context, ROLES.CLIENT) ? updateOne(args) : new AuthenticationError("unauthorized"),
         connectUser: (parent, args) => connect(args),
-        // TODO: read about subscription - today *
+        SignUpAdmin: (parent, args, context) => isAuthenticated(context, ROLES.ADMIN) ? createOne(args, true) : new AuthenticationError("unauthorized"),
         // TODO: think how to DRY auth
         // TODO: add get num of users
     }
