@@ -32,7 +32,7 @@ exports.createOne = async (inputUser, isAdmin = false) => {
     userToCreate.address = address;
     let user = new User(userToCreate);
     if(isAdmin){
-        user.Role = ROLES.ADMIN;
+        user.role = ROLES.ADMIN;
     }
     return await user.save().then(savedUser => {
         logger.info("added a new user " + userToCreate.email)

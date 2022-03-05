@@ -3,6 +3,7 @@ const mongoDB = 'mongodb://localhost/TestJesta'
 mongoose.connect(mongoDB)
 const User = require('../Models/User')
 const { createOne, connect, deleteOne, updateOne} = require('../Controllers/userController');
+const {ROLES} = require("../Models/Common/consts");
 
 const mockUserDetails = {
     userParams: {
@@ -50,6 +51,15 @@ describe("User model test", () => {
         const mockUser = JSON.parse(JSON.stringify(mockUserDetails))
         let createOneFunction = await createOne(mockUser)
         expect(createOneFunction.token).toBeDefined()
+    })
+
+    test("createOne Admin return token", async () => {
+        const mockUser = JSON.parse(JSON.stringify(mockUserDetails))
+        let createOneFunction = await createOne(mockUser, true)
+        expect(createOneFunction.token).toBeDefined()
+        User.findOne({email : mockUserDetails.validUser.email}, function(err, user){
+            expect(user.role).toBe(ROLES.ADMIN)
+        })
     })
 
     test("createOne return alreadyExist error", async () => {
