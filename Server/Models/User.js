@@ -3,8 +3,9 @@ const bcrypt = require('bcrypt');
 const SALT_WORK_FACTOR = 10
 const validation = require("./Common/Validations");
 const constants = require("./Common/consts");
+const { addressSchema } = require("./Common/Address");
 
-var userSchema = module.exports = mongoose.Schema({
+let userSchema = module.exports = mongoose.Schema({
     firstName: {
         type: String,
         required: "must enter a first name"
@@ -24,7 +25,7 @@ var userSchema = module.exports = mongoose.Schema({
         type: Date,
     },
     hashedPassword: {
-        type: String, //TODO: in future add hash
+        type: String,
         required: "must enter a password",
         select: false,
         validate: [validation.validatePassword, "password is invalid"]
@@ -44,18 +45,8 @@ var userSchema = module.exports = mongoose.Schema({
         type: String
     },
     address: {
-        country: {
-            type: String,
-            required: "must enter a country"
-        },
-        city: {
-            type: String,
-            required: "must enter a City"
-        },
-        street: {
-            type: String,
-            required: "must enter a Street"
-        }
+        type: addressSchema,
+        required: true
     },
     role: {
         type: String,

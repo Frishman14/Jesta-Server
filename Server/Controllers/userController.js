@@ -25,11 +25,11 @@ exports.createOne = async (inputUser, isAdmin = false) => {
         await uploadImage.then(result => user.imagePath = result);
     }
     let userToCreate = inputUser.userParams;
-    let address = {country: userToCreate.country, city: userToCreate.city, street: userToCreate.street}
-    delete userToCreate.country;
-    delete userToCreate.city;
-    delete userToCreate.street;
-    userToCreate.address = address;
+    userToCreate.address = {
+        country: userToCreate.country,
+        city: userToCreate.city,
+        street: userToCreate.street
+    };
     let user = new User(userToCreate);
     if(isAdmin){
         user.role = ROLES.ADMIN;
