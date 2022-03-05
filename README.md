@@ -6,7 +6,7 @@ This repo is for Jesta NODE Server
 
 get into the the right dir
 
-then run in cmd: "npm i" and then "npm run dev"
+then run in cmd: "npm run start"
 
 the server is running. 
 
