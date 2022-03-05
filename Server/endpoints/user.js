@@ -70,8 +70,8 @@ exports.typeDefs = gql`
 exports.resolvers = {
     Upload: GraphQLUpload,
     Query: {
-        getAllUsers: async (parent, args, context) => { return isAuthenticated(context) === true ? await User.find({}).exec(): new AuthenticationError("unauthorized"); },
-        getUser: async (parent, filterArgs, context) =>  { return isAuthenticated(context) === true ? await User.findOne(filterArgs).exec(): new AuthenticationError("unauthorized"); },
+        getAllUsers: async (parent, args, context) => { return isAuthenticated(context) ? await User.find({}).exec(): new AuthenticationError("unauthorized"); },
+        getUser: async (parent, filterArgs, context) =>  { return isAuthenticated(context) ? await User.findOne(filterArgs).exec(): new AuthenticationError("unauthorized"); },
     },
     Mutation: {
         signUpUser: (parent, args) => createOne(args),

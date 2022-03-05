@@ -30,7 +30,8 @@ let favorSchema = module.exports = mongoose.Schema({
         type: [String]
     },
     paymentAmount: {
-        type: Number
+        type: Number,
+        default: 0
     },
     dateToPublish: {
         type: Date
