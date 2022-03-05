@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const config = require('../config.json');
 const { errorDuplicateKeyHandler } = require('./errorHandlers');
 const logger = require("../logger");
+const { ROLES } = require("../Models/Common/consts")
 const User = require("../Models/User");
 const { finished } = require('stream/promises');
 const {PROFILE_IMAGES_PATH, PROFILE_IMAGE} = require('../consts');
@@ -18,7 +19,7 @@ async function uploadFile(file, fullPath, dirPath) {
     return dirPath + fullFileName;
 }
 
-exports.createOne = async (inputUser) => {
+exports.createOne = async (inputUser, isAdmin = false) => {
     if(inputUser.file){
         const uploadImage = uploadFile(inputUser.file, PROFILE_IMAGES_PATH, PROFILE_IMAGE);
         await uploadImage.then(result => user.imagePath = result);
@@ -30,6 +31,9 @@ exports.createOne = async (inputUser) => {
     delete userToCreate.street;
     userToCreate.address = address;
     let user = new User(userToCreate);
+    if(isAdmin){
+        user.Role = ROLES.ADMIN;
+    }
     return await user.save().then(savedUser => {
         logger.info("added a new user " + userToCreate.email)
         userToCreate.password = userToCreate.hashedPassword;

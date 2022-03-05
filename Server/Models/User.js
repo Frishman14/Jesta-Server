@@ -64,7 +64,6 @@ var userSchema = module.exports = mongoose.Schema({
     },
     imagePath: {
         type: String,
-        //TODO: add in future
     },
     created_date:{
         type: Date,
@@ -107,6 +106,7 @@ userSchema.pre("findOneAndUpdate", function(next){
     
             // override the cleartext password with the hashed one
             update.hashedPassword = hash;
+            update.datePasswordModified = Date.now()
             next();
         });
     });
