@@ -17,13 +17,13 @@ exports.userTypeDefs = gql`
                         _id: String
                         firstName: String!
                         lastName: String!
-                        birthday: DateTime!
+                        birthday: DateTime
                         email: String!
                         dateEmailVerified: String
                         hashedPassword: String!
                         datePasswordModified: DateTime
                         phone: String
-                        address: Address!
+                        address: Address
                         role: String
                         imagePath: String
                         created_date: String
@@ -31,13 +31,13 @@ exports.userTypeDefs = gql`
                     input UserCreateInput {
                         firstName: String!
                         lastName: String!
-                        birthday: String!
+                        birthday: String
                         email: String!
                         hashedPassword: String!
                         phone: String
-                        country: String!
-                        city: String!
-                        street: String!
+                        country: String
+                        city: String
+                        street: String
                         imagePath: Upload
                     }
                     input UserUpdateInput {

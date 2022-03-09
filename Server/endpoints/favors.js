@@ -17,13 +17,13 @@ exports.favorTypeDefs = gql`
                         _id: String
                         firstName: String!
                         lastName: String!
-                        birthday: DateTime!
+                        birthday: DateTime
                         email: String!
                         dateEmailVerified: String
                         hashedPassword: String!
                         datePasswordModified: DateTime
                         phone: String
-                        address: Address!
+                        address: Address
                         role: String
                         imagePath: String
                         created_date: String
