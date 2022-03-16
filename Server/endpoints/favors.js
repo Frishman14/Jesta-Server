@@ -64,7 +64,6 @@ exports.favorTypeDefs = gql`
                         sourceAddress: AddressInput!
                         destinationAddress: AddressInput
                         description: String!
-                        imagesPath: [String]
                         paymentAmount: Float
                         paymentMethod: PaymentType!
                         dateToPublish: DateTime
@@ -84,7 +83,7 @@ exports.favorTypeDefs = gql`
                         createCategory(name: String): Category
                         updateCategory(nameToChange: String, changedName: String): String
                         deleteCategory(name: String): String
-                        createFavor(favor: FavorInput): FavorInput
+                        createFavor(favor: FavorInput): Favor
                     }
                     `;
 
