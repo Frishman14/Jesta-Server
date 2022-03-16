@@ -2,6 +2,10 @@
 
 This repo is for Jesta NODE Server
 
+Android client repo: https://github.com/noampl/Jesta-Android
+
+AngularJS Admin client repo: https://github.com/ohad-shai/jesta-admin
+
 # Server
 
 get into the path: ./Server
