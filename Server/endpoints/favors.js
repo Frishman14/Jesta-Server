@@ -84,6 +84,7 @@ exports.favorTypeDefs = gql`
                         updateCategory(nameToChange: String, changedName: String): String
                         deleteCategory(name: String): String
                         createFavor(favor: FavorInput): Favor
+                        deleteFavor(favorId: String): String
                     }
                     `;
 
@@ -103,6 +104,7 @@ exports.favorResolvers = {
 
         // favors
         createFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.createOne(args): new AuthenticationError("unauthorized"); }, //TODO: add images
+        deleteFavor: async (parent, args, context) => { return isAuthenticated(context, ROLES.CLIENT) ? await favorController.deleteOne(args, context): new AuthenticationError("unauthorized"); },
 
     }
 }

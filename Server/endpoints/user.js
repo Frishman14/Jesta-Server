@@ -64,7 +64,7 @@ exports.userTypeDefs = gql`
                         signUpAdmin(userParams: UserCreateInput, file: Upload): JWT
                         deleteUser(_id: String, email: String): String
                         updateUser(_id: String, email: String, updatedUser: UserUpdateInput): String
-                        connectUser(email: String, password: String): JWT
+                        connectUser(email: String!, password: String!): JWT
                     }
                     `;
 
