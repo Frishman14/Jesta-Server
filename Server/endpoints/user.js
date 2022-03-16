@@ -52,7 +52,8 @@ exports.userTypeDefs = gql`
                         street: String
                     }
                     type JWT {
-                        token: String
+                        token: String,
+                        userId: String,
                     }
                     type Query {
                         getAllUsers: [User]
@@ -77,7 +78,7 @@ exports.userResolvers = {
         signUpUser: (parent, args) => createOne(args),
         deleteUser: (parent, args, context) => isAuthenticated(context) ? deleteOne(args) : new AuthenticationError("unauthorized"),
         updateUser: (parent, args, context) => isAuthenticated(context) ? updateOne(args) : new AuthenticationError("unauthorized"),
-        connectUser: (parent, args) => connect(args),
+        connectUser: async (parent, args) => { console.log(await connect(args)); return await connect(args) },
         signUpAdmin: (parent, args, context) => isAuthenticated(context, ROLES.ADMIN) ? createOne(args, true) : new AuthenticationError("unauthorized"),
         // TODO: add get num of users
     }

@@ -88,12 +88,12 @@ exports.connect = async (userDetails) => {
         }
         const validPassword = await bcrypt.compare(userDetails.password, user.hashedPassword);
         if(validPassword){
-            return generateToken(user.id, user.role);
+            return {token: await generateToken(user.id, user.role), userId: user.id };
         }
         return new Error("password is wrong");
     });
 }
 
 const generateToken = async (id, role) => {
-    return {token : "Bearer " + await jwt.sign({sub: id, role: role}, config.secret, { algorithm: "HS256", expiresIn: "7d" })}
+    return  "Bearer " + await jwt.sign({sub: id, role: role}, config.secret, { algorithm: "HS256", expiresIn: "7d" })
 }
