@@ -100,6 +100,7 @@ exports.favorTypeDefs = gql`
                     type Query {
                         getAllCategories: [Category]
                         getAllFavors: [Favor]
+                        getFavorsInRadios(center: [Float], radius: Float): [Favor] 
                     }
                     type Mutation {
                         createCategory(name: String): Category
@@ -118,6 +119,8 @@ exports.favorResolvers = {
 
         // favors
         getAllFavors: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({}).exec(): new AuthenticationError("unauthorized"); },
+        getFavorsInRadios: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.findByRadios(args): new AuthenticationError("unauthorized"); }, // returns by sourceAddress
+
     },
     Mutation: {
         // categories

@@ -1,7 +1,6 @@
 const logger = require("../logger");
 const Favor = require("../Models/favors/Favor");
 const {errorDuplicateKeyHandler} = require("./errorHandlers");
-const {decodeToken} = require("../middlewares/authorize");
 const {ROLES} = require("../Models/Common/consts");
 
 exports.createOne = async (args) => {
@@ -40,6 +39,22 @@ exports.updateOne = async (params, token) => {
         logger.error("failed to update favor")
         return new Error(errorDuplicateKeyHandler(error))
     })
+}
+
+exports.findByRadios = async (params) => {
+    let query = {
+        "sourceAddress.location" : {
+                $geoWithin: {
+                    $centerSphere: [params.center, kmToRadian(params["radius"])]
+                }
+        }
+    };
+    return await Favor.find(query).exec();
+}
+
+function kmToRadian(kms){
+    let earthRadiusInKm = 6371;
+    return kms / earthRadiusInKm;
 }
 
 // TODO: add get by location
