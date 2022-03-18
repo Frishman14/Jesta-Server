@@ -9,8 +9,7 @@ exports.userTypeDefs = gql`
                     scalar DateTime
                     scalar Upload
                     type Coordinates {
-                        longitude: Float
-                        altitude: Float
+                        coordinates: [Float]
                     }
                     type Address {
                         country: String
