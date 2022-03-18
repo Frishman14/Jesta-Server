@@ -8,10 +8,16 @@ const { GraphQLUpload } = require('graphql-upload');
 exports.userTypeDefs = gql`
                     scalar DateTime
                     scalar Upload
+                    type Coordinates {
+                        longitude: Float
+                        altitude: Float
+                    }
                     type Address {
                         country: String
                         city: String
                         street: String
+                        houseNumber: Int
+                        location: Coordinates
                     }
                     type User {
                         _id: String
@@ -39,6 +45,9 @@ exports.userTypeDefs = gql`
                         city: String
                         street: String
                         imagePath: Upload
+                        houseNumber: Int
+                        longitude: Float
+                        altitude: Float
                     }
                     input UserUpdateInput {
                         firstName: String
@@ -50,6 +59,9 @@ exports.userTypeDefs = gql`
                         country: String
                         city: String
                         street: String
+                        houseNumber: Int
+                        longitude: Float
+                        altitude: Float
                     }
                     type JWT {
                         token: String,

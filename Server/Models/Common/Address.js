@@ -17,5 +17,5 @@ exports.addressSchema = mongoose.Schema({
     houseNumber: {
         type: Number
     },
-    loc: GeoSchema,
+    location: GeoSchema,
 });
