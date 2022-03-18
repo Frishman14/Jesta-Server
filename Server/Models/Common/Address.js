@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { GeoSchema } = require('./geoSchema');
 
 exports.addressSchema = mongoose.Schema({
     country: {
@@ -12,5 +13,9 @@ exports.addressSchema = mongoose.Schema({
     street: {
         type: String,
         required: "must enter a Street"
-    }
+    },
+    houseNumber: {
+        type: Number
+    },
+    loc: GeoSchema,
 });
