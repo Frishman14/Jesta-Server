@@ -5,24 +5,13 @@ const { errorDuplicateKeyHandler } = require('./errorHandlers');
 const logger = require("../logger");
 const { ROLES } = require("../Models/Common/consts")
 const User = require("../Models/User");
-const { finished } = require('stream/promises');
+const { uploadFile } = require("./imageUtils")
 const {PROFILE_IMAGES_PATH, PROFILE_IMAGE} = require('../consts');
-
-
-async function uploadFile(file, fullPath, dirPath) {
-    let { createReadStream, filename } = await file;
-    let stream = createReadStream();
-    let fullFileName =  new Date().getTime() + filename
-    let out = require('fs').createWriteStream(fullPath + fullFileName);
-    stream.pipe(out);
-    await finished(out);
-    return dirPath + fullFileName;
-}
 
 exports.createOne = async (inputUser, isAdmin = false) => {
     if(inputUser.file){
         const uploadImage = uploadFile(inputUser.file, PROFILE_IMAGES_PATH, PROFILE_IMAGE);
-        await uploadImage.then(result => user.imagePath = result);
+        await uploadImage.then(result => inputUser.userParams.imagePath = result);
     }
     let userToCreate = inputUser.userParams;
     userToCreate.address = {
