@@ -1,11 +1,8 @@
 const { isAuthenticated } = require("../middlewares/authorize");
 const { gql, AuthenticationError } = require("apollo-server-express");
-const Category = require("../Models/favors/Category");
 const Favor = require("../Models/favors/Favor");
-const categoryController = require("../Controllers/categoryController");
 const favorController = require("../Controllers/favorController");
 const { GraphQLUpload } = require('graphql-upload');
-const {ROLES} = require("../Models/Common/consts");
 
 exports.favorTypeDefs = gql`
                     scalar DateTime
@@ -82,20 +79,21 @@ exports.favorTypeDefs = gql`
                         getFavorsInRadios(center: [Float], radius: Float): [Favor] 
                     }
                     type Mutation {
-                        createFavor(favor: FavorInput): Favor
+                        createFavor(favor: FavorInput, image: Upload): Favor
                         deleteFavor(favorId: String): String
                         updateFavor(favorId: String, updatedFavor: UpdateFavorInput): String
                     }
                     `;
 
 exports.favorResolvers = {
+    Upload: GraphQLUpload,
     Query: {
         getAllFavors: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({}).exec(): new AuthenticationError("unauthorized"); },
         getFavorsInRadios: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.findByRadios(args): new AuthenticationError("unauthorized"); }, // returns by sourceAddress
     },
     Mutation: {
-        createFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.createOne(args): new AuthenticationError("unauthorized"); }, //TODO: add images
-        deleteFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.deleteOne(args, context): new AuthenticationError("unauthorized"); },
-        updateFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.updateOne(args, context): new AuthenticationError("unauthorized"); },
+        createFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.createOne(args): new AuthenticationError("unauthorized"); },
+        deleteFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.deleteOne(args, context): new AuthenticationError("unauthorized"); }, //TODO: add images
+        updateFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.updateOne(args, context): new AuthenticationError("unauthorized"); }, //TODO: add images
     }
 }

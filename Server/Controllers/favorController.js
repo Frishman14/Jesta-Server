@@ -3,8 +3,13 @@ const Favor = require("../Models/favors/Favor");
 const {errorDuplicateKeyHandler} = require("./errorHandlers");
 const { kmToRadian } = require("./geoLocationUtils");
 const {ROLES} = require("../Models/Common/consts");
+const {FAVOR_IMAGES_PATH, FAVOR_IMAGE} = require("../consts");
+const { uploadFile } = require("./imageUtils")
 
 exports.createOne = async (args) => {
+    if(args.image){
+        await uploadFile(args.image, FAVOR_IMAGES_PATH, FAVOR_IMAGE).then(result => args.favor.imagesPath = [result]);
+    }
     let favor = new Favor(args["favor"])
     return await favor.save().then((savedFavor) => {
         logger.debug("created new favor " + savedFavor._id);
