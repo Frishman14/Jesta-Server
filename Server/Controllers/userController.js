@@ -28,7 +28,9 @@ exports.createOne = async (inputUser, isAdmin = false) => {
     userToCreate.address = {
         country: userToCreate.country,
         city: userToCreate.city,
-        street: userToCreate.street
+        street: userToCreate.street,
+        houseNumber: userToCreate.houseNumber,
+        location: { coordinates: [userToCreate.longitude, userToCreate.altitude] }
     };
     let user = new User(userToCreate);
     if(isAdmin){
@@ -62,7 +64,6 @@ exports.deleteOne = async (userParams) => {
 exports.updateOne = async (params) => {
     if (!params._id && !params.email)
         return new Error("must get user _id or email");
-
     let filter = {};
     params._id !== undefined ? filter["_id"] = params._id : "";
     params.email !== undefined ? filter["email"] = params.email : "";

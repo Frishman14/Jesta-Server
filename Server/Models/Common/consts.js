@@ -9,6 +9,12 @@ const REPORTS_STATUS = {
     CLOSED: "Closed",
 }
 
+const PAYMENTS_TYPE = {
+    PAYPAL: "Pay-pal",
+    CASH: "Cash",
+    FREE: "Free",
+}
+
 const RESULT = {
     OK: "Ok",
     MODIFIED: "Modified",
