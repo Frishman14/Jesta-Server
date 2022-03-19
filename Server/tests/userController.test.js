@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const mongoDB = 'mongodb://localhost/TestJesta'
+const mongoDB = 'mongodb://localhost/TestUser'
 mongoose.connect(mongoDB)
 const User = require('../Models/User')
 const { createOne, connect, deleteOne, updateOne} = require('../Controllers/userController');
@@ -36,7 +36,7 @@ const mockUserDetails = {
     }
 
 }
-describe("User model test", () => {
+describe("User controller test", () => {
     beforeAll(async() => {
         await User.deleteMany({})
     })
