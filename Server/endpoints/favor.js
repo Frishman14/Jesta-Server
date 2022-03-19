@@ -30,21 +30,6 @@ exports.favorTypeDefs = gql`
                         houseNumber: Int
                         location: CoordinatesInput
                     }
-                    type User {
-                        _id: String
-                        firstName: String!
-                        lastName: String!
-                        birthday: DateTime
-                        email: String!
-                        dateEmailVerified: String
-                        hashedPassword: String!
-                        datePasswordModified: DateTime
-                        phone: String
-                        address: Address
-                        role: String
-                        imagePath: String
-                        created_date: String
-                    }
                     type Favor {
                         _id: String!
                         ownerId: String!
@@ -92,20 +77,11 @@ exports.favorTypeDefs = gql`
                         dateToUnpublished: DateTime
                         dateLockedOut: DateTime
                     }
-                    type Category {
-                        _id: String!
-                        name: String
-                        dateLastModified: DateTime
-                    }
                     type Query {
-                        getAllCategories: [Category]
                         getAllFavors: [Favor]
                         getFavorsInRadios(center: [Float], radius: Float): [Favor] 
                     }
                     type Mutation {
-                        createCategory(name: String): Category
-                        updateCategory(nameToChange: String, changedName: String): String
-                        deleteCategory(name: String): String
                         createFavor(favor: FavorInput): Favor
                         deleteFavor(favorId: String): String
                         updateFavor(favorId: String, updatedFavor: UpdateFavorInput): String
@@ -114,24 +90,12 @@ exports.favorTypeDefs = gql`
 
 exports.favorResolvers = {
     Query: {
-        // categories
-        getAllCategories: async (parent, args, context) => { return isAuthenticated(context) ? await Category.find({}).exec(): new AuthenticationError("unauthorized"); },
-
-        // favors
         getAllFavors: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({}).exec(): new AuthenticationError("unauthorized"); },
         getFavorsInRadios: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.findByRadios(args): new AuthenticationError("unauthorized"); }, // returns by sourceAddress
-
     },
     Mutation: {
-        // categories
-        createCategory: async (parent, args, context) => { return isAuthenticated(context, ROLES.ADMIN) ? await categoryController.createOne(args): new AuthenticationError("unauthorized"); },
-        updateCategory: async (parent, args, context) => { return isAuthenticated(context, ROLES.ADMIN) ? await categoryController.updateOne(args): new AuthenticationError("unauthorized"); },
-        deleteCategory: async (parent, args, context) => { return isAuthenticated(context, ROLES.ADMIN) ? await categoryController.deleteOne(args): new AuthenticationError("unauthorized"); },
-
-        // favors
         createFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.createOne(args): new AuthenticationError("unauthorized"); }, //TODO: add images
         deleteFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.deleteOne(args, context): new AuthenticationError("unauthorized"); },
         updateFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.updateOne(args, context): new AuthenticationError("unauthorized"); },
-
     }
 }

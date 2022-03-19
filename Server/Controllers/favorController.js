@@ -1,10 +1,11 @@
 const logger = require("../logger");
 const Favor = require("../Models/favors/Favor");
 const {errorDuplicateKeyHandler} = require("./errorHandlers");
+const { kmToRadian } = require("./geoLocationUtils");
 const {ROLES} = require("../Models/Common/consts");
 
 exports.createOne = async (args) => {
-    let favor = new Favor(args.favor)
+    let favor = new Favor(args["favor"])
     return await favor.save().then((savedFavor) => {
         logger.debug("created new favor " + savedFavor._id);
         return savedFavor;
@@ -52,13 +53,7 @@ exports.findByRadios = async (params) => {
     return await Favor.find(query).exec();
 }
 
-function kmToRadian(kms){
-    let earthRadiusInKm = 6371;
-    return kms / earthRadiusInKm;
-}
-
-// TODO: add get by location
-// TODO: get all with filters
+// TODO: get all by category
 
 async function validateDetails(params, token){
     let userDetails = token
