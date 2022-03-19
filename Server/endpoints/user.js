@@ -68,6 +68,7 @@ exports.userTypeDefs = gql`
                     }
                     type Query {
                         getAllUsers: [User]
+                        getAllAdmins: [User]
                         getUser(_id: String, firstName: String, lastName: String, email: String): User
                     }
                     type Mutation {
@@ -83,6 +84,7 @@ exports.userResolvers = {
     Upload: GraphQLUpload,
     Query: {
         getAllUsers: async (parent, args, context) => { return isAuthenticated(context) ? await User.find({}).exec(): new AuthenticationError("unauthorized"); },
+        getAllAdmins: async (parent, args, context) => { return isAuthenticated(context, ROLES.ADMIN) ? await User.find({role: "admin"}).exec(): new AuthenticationError("unauthorized"); },
         getUser: async (parent, filterArgs, context) =>  { return isAuthenticated(context) ? await User.findOne(filterArgs).exec(): new AuthenticationError("unauthorized"); },
     },
     Mutation: {
