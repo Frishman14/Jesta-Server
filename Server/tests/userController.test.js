@@ -15,6 +15,9 @@ const mockUserDetails = {
         country: "Israel",
         city: "Givatayim",
         street: "Ben-Zvi",
+        houseNumber: 23,
+        longitude: 32.12345,
+        altitude: 32.12345
     },
     validUser: {
         firstName: "mock",
@@ -26,6 +29,9 @@ const mockUserDetails = {
             country: "Israel",
             city: "Givatayim",
             street: "Ben-Zvi",
+            location: {
+                coordinates: [32.12345,32.12345]
+            }
         }
     }
 

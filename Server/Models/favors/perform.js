@@ -3,7 +3,7 @@ const { addressSchema } = require("../Common/Address");
 const { activityDays } = require("../Common/activityDays");
 
 let performSchema = module.exports = mongoose.Schema({
-    performId: {
+    performerId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: "favor must have a user"
@@ -27,12 +27,6 @@ let performSchema = module.exports = mongoose.Schema({
     },
     address: {
         type: addressSchema
-    },
-    locationLatitude: {
-        type: Number
-    },
-    locationLongitude: {
-        type: Number
     },
     dateCreated: {
         type: Date,

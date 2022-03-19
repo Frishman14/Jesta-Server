@@ -6,12 +6,16 @@ const { ApolloServerPluginDrainHttpServer } = require("apollo-server-core")
 const http = require("http");
 const logger = require("./logger");
 const { userTypeDefs, userResolvers } = require('./endpoints/user');
-const { favorResolvers, favorTypeDefs} = require('./endpoints/favors');
+const { performTypeDefs, performResolvers } = require('./endpoints/perform');
+const { categoryTypeDefs, categoryResolvers } = require('./endpoints/category');
+const { favorResolvers, favorTypeDefs} = require('./endpoints/favor');
 const { decodeToken } = require('./middlewares/authorize');
 const { graphqlUploadExpress } = require('graphql-upload');
 const User = require("./Models/User");
 
 const PORT = process.env.PORT || 4111;
+const resolvers = [userResolvers, favorResolvers, categoryResolvers, performResolvers]
+const typeDefs = [userTypeDefs, favorTypeDefs, categoryTypeDefs, performTypeDefs]
 
 // app init
 async function startApolloServer(typeDefs, resolvers){
@@ -62,5 +66,4 @@ async function startApolloServer(typeDefs, resolvers){
     await new Promise(resolve => httpServer.listen({ port: PORT}, resolve));
     logger.info(`Server ready at http://localhost:${PORT}${server.graphqlPath}`);
 }
-
-startApolloServer([userTypeDefs, favorTypeDefs], [userResolvers, favorResolvers]).catch(error => logger.error(error));
+startApolloServer(typeDefs,resolvers ).catch(error => logger.error(error));
