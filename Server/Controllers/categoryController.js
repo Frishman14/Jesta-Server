@@ -1,10 +1,9 @@
 const logger = require("../logger");
 const Category = require("../Models/favors/Category");
 const {errorDuplicateKeyHandler} = require("./errorHandlers");
-const User = require("../Models/User");
 
-exports.createOne = async (name) => {
-    let category = new Category(name)
+exports.createOne = async (categoryName) => {
+    let category = new Category(categoryName)
     return await category.save().then((savedCategory) => {
         logger.debug("created new category " + savedCategory.name);
         return savedCategory;
@@ -21,7 +20,7 @@ exports.updateOne = async (params) => {
         if (!category.acknowledged) {
             return new Error("category is not found");
         }
-        logger.debug("updated user " + params.email);
+        logger.debug("updated category " + params.email);
         return "success";
     }).catch((error) => {
         logger.error("failed to update user " + error)
