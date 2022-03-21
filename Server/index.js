@@ -43,7 +43,10 @@ async function startApolloServer(typeDefs, resolvers){
                     hashedPassword: "aA123456",
                     country: "Israel",
                     city: "Tel-Aviv",
-                    street: "ben-zvi"
+                    street: "ben-zvi",
+                    houseNumber: 23,
+                    longitude: 32.12345,
+                    altitude: 32.12345
                 }
             }, true)
         }
