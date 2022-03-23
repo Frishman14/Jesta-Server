@@ -12,10 +12,7 @@ exports.userTypeDefs = gql`
                         coordinates: [Float]
                     }
                     type Address {
-                        country: String
-                        city: String
-                        street: String
-                        houseNumber: Int
+                        fullAddress: String
                         location: Coordinates
                     }
                     type User {
@@ -40,11 +37,7 @@ exports.userTypeDefs = gql`
                         email: String!
                         hashedPassword: String!
                         phone: String
-                        country: String
-                        city: String
-                        street: String
-                        imagePath: Upload
-                        houseNumber: Int
+                        fullAddress: String
                         longitude: Float
                         altitude: Float
                     }
@@ -55,10 +48,7 @@ exports.userTypeDefs = gql`
                         email: String
                         hashedPassword: String
                         phone: String
-                        country: String
-                        city: String
-                        street: String
-                        houseNumber: Int
+                        fullAddress: String
                         longitude: Float
                         altitude: Float
                     }

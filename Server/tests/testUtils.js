@@ -19,10 +19,7 @@ exports.validCategory = {
 }
 
 exports.validAddress = {
-    country: "mockCountry",
-    city: "mockCity",
-    street: "mockStreet",
-    houseNumber: 23,
+    fullAddress: "ben-tzvi 23 givatayim",
     location: {
         type: "Point",
         coordinates: [32.123456,32.123456]

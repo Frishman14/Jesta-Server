@@ -15,10 +15,7 @@ exports.createOne = async (inputUser, isAdmin = false) => {
     }
     let userToCreate = inputUser.userParams;
     userToCreate.address = {
-        country: userToCreate.country,
-        city: userToCreate.city,
-        street: userToCreate.street,
-        houseNumber: userToCreate.houseNumber,
+        fullAddress: userToCreate.fullAddress,
         location: { coordinates: [userToCreate.longitude, userToCreate.altitude] }
     };
     let user = new User(userToCreate);

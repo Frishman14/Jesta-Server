@@ -14,17 +14,11 @@ exports.favorTypeDefs = gql`
                         coordinates: [Float]
                     }
                     type Address {
-                        country: String
-                        city: String
-                        street: String
-                        houseNumber: Int
+                        fullAddress: String
                         location: Coordinates
                     }
                     input AddressInput {
-                        country: String
-                        city: String
-                        street: String
-                        houseNumber: Int
+                        fullAddress: String
                         location: CoordinatesInput
                     }
                     type Favor {

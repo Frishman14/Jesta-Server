@@ -12,10 +12,7 @@ const mockUserDetails = {
         birthday: "Fri Feb 25 1995 16:22:50 GMT+0200 (Israel Standard Time)",
         email: "test@example.com",
         hashedPassword: "aA123456",
-        country: "Israel",
-        city: "Givatayim",
-        street: "Ben-Zvi",
-        houseNumber: 23,
+        fullAddress: "ben-zvi 23 givatayim",
         longitude: 32.12345,
         altitude: 32.12345
     },
@@ -26,9 +23,7 @@ const mockUserDetails = {
         email: "test@example.com",
         hashedPassword: "aA123456",
         address: {
-            country: "Israel",
-            city: "Givatayim",
-            street: "Ben-Zvi",
+            fullAddress: "ben-zvi 23 givatayim",
             location: {
                 coordinates: [32.12345,32.12345]
             }
