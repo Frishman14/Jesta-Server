@@ -11,6 +11,7 @@ const { categoryTypeDefs, categoryResolvers } = require('./endpoints/category');
 const { favorResolvers, favorTypeDefs} = require('./endpoints/favor');
 const { decodeToken } = require('./middlewares/authorize');
 const { graphqlUploadExpress } = require('graphql-upload');
+const { Client } = require("@googlemaps/google-maps-services-js");
 const User = require("./Models/User");
 
 const PORT = process.env.PORT || 4111;
@@ -41,10 +42,7 @@ async function startApolloServer(typeDefs, resolvers){
                     birthday: "1995-08-29T03:00:00",
                     email: "admin@jesta.com",
                     hashedPassword: "aA123456",
-                    country: "Israel",
-                    city: "Tel-Aviv",
-                    street: "ben-zvi",
-                    houseNumber: 23,
+                    fullAddress: "givatyim ben-tzvi 23",
                     longitude: 32.12345,
                     altitude: 32.12345
                 }
