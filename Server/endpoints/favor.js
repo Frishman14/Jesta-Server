@@ -4,7 +4,7 @@ const Favor = require("../Models/favors/Favor");
 const favorController = require("../Controllers/favorController");
 const { GraphQLUpload } = require('graphql-upload');
 const startOfDay = require("date-fns/startOfDay");
-const endOfDayfrom = require("date-fns/endOfDay");
+const endOfDay = require("date-fns/endOfDay");
 
 exports.favorTypeDefs = gql`
                     scalar DateTime
@@ -104,7 +104,7 @@ exports.favorResolvers = {
     Upload: GraphQLUpload,
     Query: {
         getFavor: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.findById(args.favorId).populate("ownerId categoryId").exec(): new AuthenticationError("unauthorized"); },
-        getFavorsByDate: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({dateToPublish: {$gte: startOfDay(new Date(args["startingDate"]) - 24*60*60*1000), $lt: endOfDayfrom(new Date(args["limitDate"]))}}).exec(): new AuthenticationError("unauthorized"); }, //TODO: moveToController
+        getFavorsByDate: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({dateToPublish: {$gte: startOfDay(new Date(args["startingDate"]) - 24*60*60*1000), $lt: endOfDay(new Date(args["limitDate"]))}}).exec(): new AuthenticationError("unauthorized"); }, //TODO: moveToController
         getAllFavors: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({}).exec(): new AuthenticationError("unauthorized"); },
         getFavorsInRadios: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.findByRadios(args): new AuthenticationError("unauthorized"); }, // returns by sourceAddress
     },
