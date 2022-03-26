@@ -4,12 +4,12 @@ const { addressSchema } = require("../Common/Address");
 let favorSchema = module.exports = mongoose.Schema({
     ownerId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "user",
         required: "favor must have a user"
     },
     categoryId: {
         type: [mongoose.Schema.Types.ObjectId],
-        ref: "Category",
+        ref: "category",
         required: "favor must have a category"
     },
     numOfPeopleNeeded: {

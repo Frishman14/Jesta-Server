@@ -21,6 +21,23 @@ exports.favorTypeDefs = gql`
                         fullAddress: String
                         location: CoordinatesInput
                     }
+                    type PopulatedFavor{
+                        _id: String!
+                        ownerId: User
+                        categoryId: [Category]
+                        numOfPeopleNeeded: Int!
+                        sourceAddress: Address
+                        destinationAddress: Address
+                        description: String
+                        imagesPath: [String]
+                        paymentAmount: Float
+                        paymentMethod: String
+                        dateToPublish: DateTime
+                        dateToUnpublished: DateTime
+                        dateLockedOut: DateTime
+                        dateCreated: DateTime
+                        dateLastModified: DateTime
+                    }
                     type Favor {
                         _id: String!
                         ownerId: String!
@@ -49,7 +66,7 @@ exports.favorTypeDefs = gql`
                         numOfPeopleNeeded: Int
                         sourceAddress: AddressInput!
                         destinationAddress: AddressInput
-                        description: String!
+                        description: String
                         paymentAmount: Float
                         paymentMethod: PaymentType!
                         dateToPublish: DateTime
@@ -69,6 +86,7 @@ exports.favorTypeDefs = gql`
                         dateLockedOut: DateTime
                     }
                     type Query {
+                        getFavor(favorId: String): PopulatedFavor
                         getAllFavors: [Favor]
                         getFavorsInRadios(center: [Float], radius: Float): [Favor] 
                     }
@@ -82,6 +100,7 @@ exports.favorTypeDefs = gql`
 exports.favorResolvers = {
     Upload: GraphQLUpload,
     Query: {
+        getFavor: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.findById(args.favorId).populate("ownerId").exec(): new AuthenticationError("unauthorized"); },
         getAllFavors: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({}).exec(): new AuthenticationError("unauthorized"); },
         getFavorsInRadios: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.findByRadios(args): new AuthenticationError("unauthorized"); }, // returns by sourceAddress
     },
