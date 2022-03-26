@@ -6,6 +6,9 @@ let CategorySchema = module.exports = mongoose.Schema({
         unique: true,
         required: "must enter a category name"
     },
+    parentCategory: {
+        type: mongoose.Schema.Types.ObjectId, ref: "category"
+    },
     dateLastModified: {
         type: Date,
         default: Date.now(),

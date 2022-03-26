@@ -6,7 +6,7 @@ exports.createOne = async (categoryName) => {
     let category = new Category(categoryName)
     return await category.save().then((savedCategory) => {
         logger.debug("created new category " + savedCategory.name);
-        return savedCategory;
+        return savedCategory.populate("parentCategory");
     }).catch(error => {
         logger.debug("error in creating new category " + error);
         return new Error(errorDuplicateKeyHandler(error))
@@ -16,7 +16,7 @@ exports.createOne = async (categoryName) => {
 exports.updateOne = async (params) => {
     if (!params.nameToChange)
         return new Error("must get category name");
-    return await Category.updateOne({name: params.nameToChange}, {name: params.changedName}, {runValidators: true}).then((category) => {
+    return await Category.updateOne({name: params.nameToChange}, {name: params.changedName, parentCategory: params["newParentCategoryId"]}, {runValidators: true}).then((category) => {
         if (!category.acknowledged) {
             return new Error("category is not found");
         }
