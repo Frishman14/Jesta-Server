@@ -7,6 +7,7 @@ exports.GeoSchema = new mongoose.Schema({
     },
     coordinates: {
         type: [Number],
-        index: "2dsphere"
+        index: "2dsphere",
+        default: [0.0,0.0]
     }
 })

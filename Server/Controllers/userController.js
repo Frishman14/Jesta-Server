@@ -14,10 +14,6 @@ exports.createOne = async (inputUser, isAdmin = false) => {
         await uploadImage.then(result => inputUser.userParams.imagePath = result);
     }
     let userToCreate = inputUser.userParams;
-    userToCreate.address = {
-        fullAddress: userToCreate.fullAddress,
-        location: { coordinates: [userToCreate.longitude, userToCreate.altitude] }
-    };
     let user = new User(userToCreate);
     if(isAdmin){
         user.role = ROLES.ADMIN;
