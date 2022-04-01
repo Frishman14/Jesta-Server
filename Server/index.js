@@ -9,14 +9,15 @@ const { userTypeDefs, userResolvers } = require('./endpoints/user');
 const { performTypeDefs, performResolvers } = require('./endpoints/perform');
 const { categoryTypeDefs, categoryResolvers } = require('./endpoints/category');
 const { favorResolvers, favorTypeDefs} = require('./endpoints/favor');
+const { favorTransactionResolvers, favorTransactionTypeDefs} = require('./endpoints/favorTransaction');
 const { decodeToken } = require('./middlewares/authorize');
 const { graphqlUploadExpress } = require('graphql-upload');
 const { Client } = require("@googlemaps/google-maps-services-js");
 const User = require("./Models/User");
 
 const PORT = process.env.PORT || 4111;
-const resolvers = [userResolvers, favorResolvers, categoryResolvers, performResolvers]
-const typeDefs = [userTypeDefs, favorTypeDefs, categoryTypeDefs, performTypeDefs]
+const resolvers = [userResolvers, favorResolvers, categoryResolvers, performResolvers, favorTransactionResolvers]
+const typeDefs = [userTypeDefs, favorTypeDefs, categoryTypeDefs, performTypeDefs, favorTransactionTypeDefs]
 
 // app init
 async function startApolloServer(typeDefs, resolvers){
