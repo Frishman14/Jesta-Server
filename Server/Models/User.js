@@ -35,7 +35,6 @@ let userSchema = module.exports = mongoose.Schema({
     },
     birthday: {
         type: Date,
-        required: "must have a birthday",
         validate: [validation.validateBirthday, "You can not be under the age of 5"]
     },
     phone: {
@@ -46,7 +45,6 @@ let userSchema = module.exports = mongoose.Schema({
     },
     address: {
         type: addressSchema,
-        required: true
     },
     role: {
         type: String,
