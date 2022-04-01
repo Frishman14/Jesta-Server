@@ -9,16 +9,16 @@ const { uploadFile } = require("./imageUtils")
 const {PROFILE_IMAGES_PATH, PROFILE_IMAGE} = require('../consts');
 
 exports.createOne = async (inputUser, isAdmin = false) => {
-    if(inputUser.file){
-        const uploadImage = uploadFile(inputUser.file, PROFILE_IMAGES_PATH, PROFILE_IMAGE);
-        await uploadImage.then(result => inputUser.userParams.imagePath = result);
-    }
     let userToCreate = inputUser.userParams;
     let user = new User(userToCreate);
     if(isAdmin){
         user.role = ROLES.ADMIN;
     }
-    return await user.save().then(savedUser => {
+    return await user.save().then(async savedUser => {
+        if(inputUser.file){
+            const uploadImage = uploadFile(inputUser.file, PROFILE_IMAGES_PATH, PROFILE_IMAGE);
+            await uploadImage.then(result => inputUser.userParams.imagePath = result);
+        }
         logger.info("added a new user " + userToCreate.email)
         userToCreate.password = userToCreate.hashedPassword;
         return this.connect(userToCreate);
