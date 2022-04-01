@@ -6,10 +6,25 @@ let favorTransactionSchema = module.exports = mongoose.Schema({
         ref: "favor",
         required: "favor must have a favorId"
     },
+    favorOwnerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user",
+        required: "favor must have a owner"
+    },
     handledByUserId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "user",
         required: "must be handled by a user"
+    },
+    status: {
+        type: String,
+        default: "Waiting"
+    },
+    handlerComment: {
+        type: String
+    },
+    ownerComment: {
+        type: String
     },
     dateAccepted: {
         type: Date
