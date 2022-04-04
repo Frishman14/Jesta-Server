@@ -7,6 +7,7 @@ const {ROLES} = require("../Models/Common/consts");
 exports.categoryTypeDefs = gql`
                     type Category {
                         _id: String!
+                        parentCategory: Category
                         name: String
                         dateLastModified: DateTime
                     }
@@ -14,8 +15,8 @@ exports.categoryTypeDefs = gql`
                         getAllCategories: [Category]
                     }
                     type Mutation {
-                        createCategory(name: String): Category
-                        updateCategory(nameToChange: String, changedName: String): String
+                        createCategory(name: String, parentCategory: String): Category
+                        updateCategory(nameToChange: String, newParentCategoryId: String, changedName: String): String
                         deleteCategory(name: String): String
                     }
                     `;
@@ -23,7 +24,7 @@ exports.categoryTypeDefs = gql`
 exports.categoryResolvers = {
     Query: {
         // categories
-        getAllCategories: async (parent, args, context) => { return isAuthenticated(context) ? await Category.find({}).exec(): new AuthenticationError("unauthorized"); },
+        getAllCategories: async (parent, args, context) => { return isAuthenticated(context) ? await Category.find({}).populate("parentCategory").exec(): new AuthenticationError("unauthorized"); },
     },
     Mutation: {
         // categories
