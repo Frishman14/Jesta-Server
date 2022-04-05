@@ -3,6 +3,7 @@ const Perform = require("../Models/favors/perform");
 const { kmToRadian } = require("./geoLocationUtils");
 const {errorDuplicateKeyHandler} = require("./errorHandlers");
 const {ROLES} = require("../Models/Common/consts");
+const { ErrorId } = require("../utilities/error-id");
 
 exports.createOne = async (args) => {
     let perform = new Perform(args["perform"])
@@ -16,12 +17,12 @@ exports.createOne = async (args) => {
 }
 
 exports.deleteOne = async (params, token) => {
-    if (!params.performId) return new Error("must get perform id");
-    if (!await validateDetails(params, token)) return new Error("unauthorized to delete someone else perform");
+    if (!params.performId) return new Error(ErrorId.MissingParameters);
+    if (!await validateDetails(params, token)) return new Error(ErrorId.Unauthorized); // unauthorized to delete someone else perform
     return await Perform.deleteOne(params).then(deletedPerform => {
         if (deletedPerform.deletedCount === 0) {
             logger.debug("perform is not exist");
-            return new Error("perform is not exist");
+            return new Error(ErrorId.Exists);
         }
         logger.debug("deleted perform")
         return "success";
@@ -29,8 +30,8 @@ exports.deleteOne = async (params, token) => {
 }
 
 exports.updateOne = async (params, token) => {
-    if (!params["performId"]) return new Error("must get perform id");
-    if (!await validateDetails(params, token)) return new Error("unauthorized to delete someone else perform");
+    if (!params["performId"]) return new Error(ErrorId.Exists);
+    if (!await validateDetails(params, token)) return new Error(ErrorId.Unauthorized); // unauthorized to delete someone else perform
     return await Perform.updateOne({_id: params["performId"]}, params["updatedPerform"]).then(updatedPerform => {
         if(updatedPerform.matchedCount === 1) {
             return "success";

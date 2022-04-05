@@ -6,7 +6,8 @@ const logger = require("../logger");
 const { ROLES } = require("../Models/Common/consts")
 const User = require("../Models/User");
 const { uploadFile } = require("./imageUtils")
-const {PROFILE_IMAGES_PATH, PROFILE_IMAGE} = require('../consts');
+const { PROFILE_IMAGES_PATH, PROFILE_IMAGE } = require('../consts');
+const { ErrorId } = require('../utilities/error-id');
 
 exports.createOne = async (inputUser, isAdmin = false) => {
     let userToCreate = inputUser.userParams;
@@ -36,7 +37,7 @@ exports.deleteOne = async (userParams) => {
     return await User.deleteOne(userParams).then(deletedUser => {
         if (deletedUser.deletedCount === 0){
             logger.info("user is not exist " + userParams.email);
-            return new Error("user is not exist");
+            return new Error(ErrorId.Invalid);
         }
         logger.info("deleted user " + userParams.email)
         return "success";
@@ -45,13 +46,13 @@ exports.deleteOne = async (userParams) => {
 
 exports.updateOne = async (params) => {
     if (!params._id && !params.email)
-        return new Error("must get user _id or email");
+        return new Error(ErrorId.MissingParameters);
     let filter = {};
     params._id !== undefined ? filter["_id"] = params._id : "";
     params.email !== undefined ? filter["email"] = params.email : "";
     return await User.updateOne(filter, params.updatedUser, {runValidators: true}).then((user) => {
         if (!user.acknowledged) {
-            return new Error("user is not found");
+            return new Error(ErrorId.Invalid);
         }
         logger.info("updated user " + params.email);
         return "success";
@@ -64,16 +65,16 @@ exports.updateOne = async (params) => {
 
 exports.connect = async (userDetails) => {
     if (!userDetails.password || !userDetails.email)
-        return new Error("must get email and a password");
+        return new Error(ErrorId.MissingParameters);
     return await User.findOne({'email': userDetails.email}, 'hashedPassword _id role').then(async (user) => {
         if (!user) {
-            return new Error("user is not exist");
+            return new Error(ErrorId.Invalid);
         }
         const validPassword = await bcrypt.compare(userDetails.password, user.hashedPassword);
         if(validPassword){
             return {token: await generateToken(user.id, user.role), userId: user.id };
         }
-        return new Error("password is wrong");
+        return new Error(ErrorId.Invalid);
     });
 }
 

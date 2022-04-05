@@ -1,5 +1,6 @@
 const logger = require("../logger");
 const Category = require("../Models/favors/Category");
+const { ErrorId } = require("../utilities/error-id");
 const {errorDuplicateKeyHandler} = require("./errorHandlers");
 
 exports.createOne = async (categoryName) => {
@@ -15,10 +16,10 @@ exports.createOne = async (categoryName) => {
 
 exports.updateOne = async (params) => {
     if (!params.nameToChange)
-        return new Error("must get category name");
+        return new Error(ErrorId.MissingParameters);
     return await Category.updateOne({name: params.nameToChange}, {name: params.changedName, parentCategory: params["newParentCategoryId"]}, {runValidators: true}).then((category) => {
         if (!category.acknowledged) {
-            return new Error("category is not found");
+            return new Error(ErrorId.NotExists);
         }
         logger.debug("updated category " + params.email);
         return "success";
@@ -30,11 +31,11 @@ exports.updateOne = async (params) => {
 
 exports.deleteOne = async (params) => {
     if (!params.name && !params._id)
-        return new Error("must get name or id");
+        return new Error(ErrorId.MissingParameters);
     return await Category.deleteOne(params).then(deletedCategory => {
         if (deletedCategory.deletedCount === 0){
             logger.debug("category is not exist");
-            return new Error("category is not exist");
+            return new Error(ErrorId.NotExists);
         }
         logger.debug("deleted category ")
         return "success";
