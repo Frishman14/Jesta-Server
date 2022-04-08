@@ -12,7 +12,6 @@ const { favorResolvers, favorTypeDefs} = require('./endpoints/favor');
 const { favorTransactionResolvers, favorTransactionTypeDefs} = require('./endpoints/favorTransaction');
 const { decodeToken } = require('./middlewares/authorize');
 const { graphqlUploadExpress } = require('graphql-upload');
-const { Client } = require("@googlemaps/google-maps-services-js");
 const User = require("./Models/User");
 
 const PORT = process.env.PORT || 4111;

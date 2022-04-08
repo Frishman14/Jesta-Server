@@ -83,6 +83,5 @@ exports.userResolvers = {
         updateUser: (parent, args, context) => isAuthenticated(context) ? updateOne(args) : new AuthenticationError("unauthorized"), //TODO: add images
         connectUser: async (parent, args) => { console.log(await connect(args)); return await connect(args) },
         signUpAdmin: (parent, args, context) => isAuthenticated(context, ROLES.ADMIN) ? createOne(args, true) : new AuthenticationError("unauthorized"),
-        // TODO: add get num of users
     }
 }
