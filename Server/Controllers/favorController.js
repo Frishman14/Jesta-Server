@@ -6,6 +6,8 @@ const {ROLES} = require("../Models/Common/consts");
 const {FAVOR_IMAGES_PATH, FAVOR_IMAGE} = require("../consts");
 const { uploadFile } = require("./imageUtils");
 const { ErrorId } = require("../utilities/error-id");
+const startOfDay = require("date-fns/startOfDay");
+const endOfDay = require("date-fns/endOfDay");
 
 exports.createOne = async (args) => {
     if(args.image){
@@ -59,7 +61,23 @@ exports.findByRadios = async (params) => {
     return await Favor.find(query).exec();
 }
 
-// TODO: get all by category
+exports.findByRadiosAndCategoryAndDate = async (params) => {
+    let query = {
+        "dateToPublish": {
+            $gte: startOfDay(new Date(params["startingDate"]) - 24*60*60*1000),
+            $lt: endOfDay(new Date(params["limitDate"]))
+        },
+        "sourceAddress.location" : {
+            $geoWithin: {
+                $centerSphere: [params.center, kmToRadian(params["radius"])]
+            }
+        },
+    };
+    if(params["categoryId"]){
+        query["categoryId"] = params["categoryId"];
+    }
+    return await Favor.find(query).exec();
+}
 
 async function validateDetails(params, token){
     let userDetails = token
