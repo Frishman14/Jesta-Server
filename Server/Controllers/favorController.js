@@ -4,7 +4,8 @@ const {errorDuplicateKeyHandler} = require("./errorHandlers");
 const { kmToRadian } = require("./geoLocationUtils");
 const {ROLES} = require("../Models/Common/consts");
 const {FAVOR_IMAGES_PATH, FAVOR_IMAGE} = require("../consts");
-const { uploadFile } = require("./imageUtils")
+const { uploadFile } = require("./imageUtils");
+const { ErrorId } = require("../utilities/error-id");
 
 exports.createOne = async (args) => {
     if(args.image){
@@ -21,12 +22,12 @@ exports.createOne = async (args) => {
 }
 
 exports.deleteOne = async (params, token) => {
-    if (!params.favorId) return new Error("must get id");
-    if (!await validateDetails(params, token)) return new Error("unauthorized to delete someone else favor");
+    if (!params.favorId) return new Error(ErrorId.MissingParameters);
+    if (!await validateDetails(params, token)) return new Error(ErrorId.Unauthorized); // unauthorized to delete someone else favor
     return await Favor.deleteOne(params).then(deletedFavor => {
         if (deletedFavor.deletedCount === 0) {
             logger.debug("favor is not exist");
-            return new Error("category is not exist");
+            return new Error(ErrorId.NotExists); // category is not exist
         }
         logger.debug("deleted favor")
         return "success";
@@ -34,8 +35,8 @@ exports.deleteOne = async (params, token) => {
 }
 
 exports.updateOne = async (params, token) => {
-    if (!params.favorId) return new Error("must get favor id");
-    if (!await validateDetails(params, token)) return new Error("unauthorized to update someone else favor");
+    if (!params.favorId) return new Error(ErrorId.MissingParameters);
+    if (!await validateDetails(params, token)) return new Error(ErrorId.Unauthorized); // unauthorized to update someone else favor
     return await Favor.updateOne({_id: params.favorId}, params["updatedFavor"]).then(updatedFavor => {
         if(updatedFavor.modifiedCount === 1) {
             return "success";
