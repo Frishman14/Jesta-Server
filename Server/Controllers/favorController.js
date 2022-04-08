@@ -2,7 +2,7 @@ const logger = require("../logger");
 const Favor = require("../Models/favors/Favor");
 const {errorDuplicateKeyHandler} = require("./errorHandlers");
 const { kmToRadian } = require("./geoLocationUtils");
-const {ROLES} = require("../Models/Common/consts");
+const {ROLES, JESTA_STATUS} = require("../Models/Common/consts");
 const {FAVOR_IMAGES_PATH, FAVOR_IMAGE} = require("../consts");
 const { uploadFile } = require("./imageUtils");
 const { ErrorId } = require("../utilities/error-id");
@@ -61,7 +61,7 @@ exports.findByRadios = async (params) => {
     return await Favor.find(query).exec();
 }
 
-exports.findByRadiosAndCategoryAndDate = async (params) => {
+exports.findByRadiosAndDateAndOnlyAvailable = async (params) => {
     let query = {
         "dateToPublish": {
             $gte: startOfDay(new Date(params["startingDate"]) - 24*60*60*1000),
@@ -72,10 +72,8 @@ exports.findByRadiosAndCategoryAndDate = async (params) => {
                 $centerSphere: [params.center, kmToRadian(params["radius"])]
             }
         },
+        "status": JESTA_STATUS.AVAILABLE
     };
-    if(params["categoryId"]){
-        query["categoryId"] = params["categoryId"];
-    }
     return await Favor.find(query).exec();
 }
 
