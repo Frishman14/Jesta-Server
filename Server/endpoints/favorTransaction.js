@@ -32,6 +32,8 @@ exports.favorTransactionTypeDefs = gql`
                         createFavorTransactionRequest(favorId: String!, comment: String): String
                         handleFavorTransactionRequest(favorTransactionId: String!, status: FavorTransactionStatus, comment: String): String
                         deleteFavorTransactionRequest(favorTransactionId: String!): String
+                        executorNotifyDoneFavor(favorTransactionId: String!): String
+                        ownerNotifyJestaHasBeenDone(favorTransactionId: String!): String
                     }
                     `;
 
@@ -46,5 +48,7 @@ exports.favorTransactionResolvers = {
         createFavorTransactionRequest: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.createRequest(args, context): new AuthenticationError("unauthorized"); },
         handleFavorTransactionRequest: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.handleRequest(args, context): new AuthenticationError("unauthorized"); },
         deleteFavorTransactionRequest: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.handleRequest(args, context): new AuthenticationError("unauthorized"); },
+        executorNotifyDoneFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.executorNotifyDoneFavor(args, context): new AuthenticationError("unauthorized"); },
+        ownerNotifyJestaHasBeenDone: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.executorNotifyDoneFavor(args, context): new AuthenticationError("unauthorized"); },
     }
 }
