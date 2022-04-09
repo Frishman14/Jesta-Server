@@ -64,7 +64,7 @@ exports.favorTypeDefs = gql`
                         FREE
                         CASH
                     }
-                    enum JestaStatus{
+                    enum FavorStatus{
                         Available
                         Unavailable
                     }
@@ -99,7 +99,7 @@ exports.favorTypeDefs = gql`
                         getAllFavors: [Favor]
                         getFavorsInRadios(center: [Float], radius: Float): [Favor]
                         getByRadiosAndDateAndOnlyAvailable(center: [Float], radius: Float, startingDate: DateTime, limitDate: DateTime): [Favor]
-                        gatAllFavorsByStatus(status: JestaStatus): [Favor]
+                        gatAllFavorsByStatus(status: FavorStatus): [Favor]
                     }
                     type Mutation {
                         createFavor(favor: FavorInput, image: Upload): Favor
