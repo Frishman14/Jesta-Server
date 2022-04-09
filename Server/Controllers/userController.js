@@ -5,7 +5,7 @@ const { errorDuplicateKeyHandler } = require('./errorHandlers');
 const logger = require("../logger");
 const { ROLES } = require("../Models/Common/consts")
 const User = require("../Models/User");
-const { uploadFile } = require("./imageUtils")
+const { uploadFile, deleteFile } = require("./imageUtils")
 const { PROFILE_IMAGES_PATH, PROFILE_IMAGE } = require('../consts');
 const { ErrorId } = require('../utilities/error-id');
 
@@ -34,7 +34,9 @@ exports.createOne = async (inputUser, isAdmin = false) => {
 exports.deleteOne = async (userParams) => {
     if (!userParams._id && !userParams.email)
         return new Error("must get user _id or email");
-    // TODO: add delete images
+    if (userParams.imagePath){
+        deleteFile(userParams.imagePath);
+    }
     return await User.deleteOne(userParams).then(deletedUser => {
         if (deletedUser.deletedCount === 0){
             logger.info("user is not exist " + userParams.email);
@@ -51,6 +53,12 @@ exports.updateOne = async (params) => {
     let filter = {};
     params._id !== undefined ? filter["_id"] = params._id : "";
     params.email !== undefined ? filter["email"] = params.email : "";
+    if (params["newImage"]){
+        let user = await User.findOne(filter).exec();
+        if(user.imagePath) deleteFile(user.imagePath);
+        const uploadImage = uploadFile(params["newImage"], PROFILE_IMAGES_PATH, PROFILE_IMAGE);
+        await uploadImage.then(result => params.updatedUser.imagePath = result);
+    }
     return await User.updateOne(filter, params.updatedUser, {runValidators: true}).then((user) => {
         if (!user.acknowledged) {
             return new Error(ErrorId.Invalid);

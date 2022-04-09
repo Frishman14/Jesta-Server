@@ -4,14 +4,16 @@ const {errorDuplicateKeyHandler} = require("./errorHandlers");
 const { kmToRadian } = require("./geoLocationUtils");
 const {ROLES, JESTA_STATUS} = require("../Models/Common/consts");
 const {FAVOR_IMAGES_PATH, FAVOR_IMAGE} = require("../consts");
-const { uploadFile } = require("./imageUtils");
+const { uploadFile, deleteFile } = require("./imageUtils");
 const { ErrorId } = require("../utilities/error-id");
 const startOfDay = require("date-fns/startOfDay");
 const endOfDay = require("date-fns/endOfDay");
 
 exports.createOne = async (args) => {
-    if(args.image){
-        await uploadFile(args.image, FAVOR_IMAGES_PATH, FAVOR_IMAGE).then(result => args.favor.imagesPath = [result]);
+    if(args.images.length > 0) {
+        await args.images.forEach(image => {
+            uploadFile(image, FAVOR_IMAGES_PATH, FAVOR_IMAGE).then(result => args.favor.imagesPath = [result]);
+        })
     }
     let favor = new Favor(args["favor"])
     return await favor.save().then((savedFavor) => {
@@ -26,24 +28,37 @@ exports.createOne = async (args) => {
 exports.deleteOne = async (params, token) => {
     if (!params.favorId) return new Error(ErrorId.MissingParameters);
     if (!await validateDetails(params, token)) return new Error(ErrorId.Unauthorized); // unauthorized to delete someone else favor
-    return await Favor.deleteOne(params).then(deletedFavor => {
-        if (deletedFavor.deletedCount === 0) {
-            logger.debug("favor is not exist");
-            return new Error(ErrorId.NotExists); // category is not exist
+    return await Favor.findByIdAndDelete(params.favorId).then((deletedFavor) => {
+        if(deletedFavor.imagesPath.length > 0){
+            deletedFavor.imagesPath.forEach(image => {
+                deleteFile(image);
+            })
         }
         logger.debug("deleted favor")
         return "success";
+    }).catch(err => {
+        logger.debug("favor deletion problem " + err);
+        return new Error(ErrorId.NotExists); // category is not exist
     })
 }
 
 exports.updateOne = async (params, token) => {
     if (!params.favorId) return new Error(ErrorId.MissingParameters);
     if (!await validateDetails(params, token)) return new Error(ErrorId.Unauthorized); // unauthorized to update someone else favor
-    return await Favor.updateOne({_id: params.favorId}, params["updatedFavor"]).then(updatedFavor => {
-        if(updatedFavor.modifiedCount === 1) {
-            return "success";
+    return await Favor.findByIdAndUpdate(params.favorId, params["updatedFavor"]).then(async updatedFavor => {
+        if(params["newImages"]){
+            if(updatedFavor.imagesPath.length > 0){
+                updatedFavor.imagesPath.forEach(image => {
+                    deleteFile(image);
+                })
+            }
+            const imagesPath = []
+            params["newImages"].forEach(image => {
+                uploadFile(image, FAVOR_IMAGES_PATH, FAVOR_IMAGE).then(result => imagesPath.push[result]);
+            })
+            await Favor.updateOne(params.favorId, {imagesPath: imagesPath}).exec();
         }
-        return "failed"
+        return "success"
     }).catch(error => {
         logger.error("failed to update favor")
         return new Error(errorDuplicateKeyHandler(error))
