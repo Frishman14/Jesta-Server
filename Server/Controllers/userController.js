@@ -53,6 +53,12 @@ exports.updateOne = async (params) => {
     let filter = {};
     params._id !== undefined ? filter["_id"] = params._id : "";
     params.email !== undefined ? filter["email"] = params.email : "";
+    if (params["newImage"]){
+        let user = await User.findOne(filter).exec();
+        if(user.imagePath) deleteFile(user.imagePath);
+        const uploadImage = uploadFile(params["newImage"], PROFILE_IMAGES_PATH, PROFILE_IMAGE);
+        await uploadImage.then(result => params.updatedUser.imagePath = result);
+    }
     return await User.updateOne(filter, params.updatedUser, {runValidators: true}).then((user) => {
         if (!user.acknowledged) {
             return new Error(ErrorId.Invalid);
