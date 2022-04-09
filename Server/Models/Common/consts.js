@@ -31,7 +31,8 @@ const JESTA_TRANSACTION_STATUS = {
     PENDING_FOR_OWNER: "Pending for owner",
     WAITING_FOR_JESTA_EXECUTION_TIME: "Waiting for jesta execution time",
     EXECUTOR_FINISH_JESTA: "Executor finish jesta",
-    JESTA_DONE: "Jesta done"
+    JESTA_DONE: "Jesta done",
+    CANCELED: "Canceled",
 }
 
 exports.ROLES = ROLES

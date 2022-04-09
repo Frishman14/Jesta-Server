@@ -1,6 +1,7 @@
 const { isAuthenticated } = require("../middlewares/authorize");
 const { gql, AuthenticationError } = require("apollo-server-express");
 const favorTransactionController = require("../Controllers/favorTransactionController");
+const {JESTA_TRANSACTION_STATUS} = require("../Models/Common/consts");
 const favorTransaction = require("../Models/favors/FavorTransactions");
 const { GraphQLUpload } = require('graphql-upload');
 
@@ -8,11 +9,19 @@ exports.favorTransactionTypeDefs = gql`
                     scalar DateTime
                     enum FavorTransactionStatus {
                         Approved
+                        Canceled
+                    }
+                    enum FavorTransactionStatus {
                         Waiting
+                        Pending for owner
+                        Waiting for jesta execution time
+                        Executor finish jesta
+                        Jesta done
                         Canceled
                     }
                     type FavorTransaction {
                         _id: String!
+                        status: String!
                         favorId: String!
                         favorOwnerId: String!
                         handledByUserId: String!
@@ -27,13 +36,15 @@ exports.favorTransactionTypeDefs = gql`
                         getAllFavorTransaction: [FavorTransaction]
                         getAllUserFavorsRequestedTransaction: [FavorTransaction]
                         getAllUserFavorsWaitingForHandleTransaction: [FavorTransaction]
+                        getAllOwnerFavorTransactionByStatus(status: FavorTransactionStatus): [FavorTransaction]
+                        getAllExecutorFavorTransactionByStatus(status: FavorTransactionStatus): [FavorTransaction]
                     }
                     type Mutation {
                         createFavorTransactionRequest(favorId: String!, comment: String): String
-                        handleFavorTransactionRequest(favorTransactionId: String!, status: FavorTransactionStatus, comment: String): String
+                        handleFavorTransactionRequest(favorTransactionId: String!, comment: String): String
                         deleteFavorTransactionRequest(favorTransactionId: String!): String
                         executorNotifyDoneFavor(favorTransactionId: String!): String
-                        ownerNotifyJestaHasBeenDone(favorTransactionId: String!): String
+                        ownerNotifyJestaHasBeenDone(favorTransactionId: String!, rate: Int): String
                     }
                     `;
 
@@ -41,14 +52,16 @@ exports.favorTransactionResolvers = {
     Upload: GraphQLUpload,
     Query: {
         getAllFavorTransaction: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({}).exec() : new AuthenticationError("unauthorized"); },
-        getAllUserFavorsRequestedTransaction: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({ handledByUserId : context.sub }).exec() : new AuthenticationError("unauthorized"); }, //TODO: moveToController + validate user
-        getAllUserFavorsWaitingForHandleTransaction: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({ ownerId : context.sub, dateAccepted : {$ne : null}}).exec(): new AuthenticationError("unauthorized"); }, //TODO: moveToController + validate user
+        getAllOwnerFavorTransactionByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({status: args.status, ownerId: context.sub}).exec() : new AuthenticationError("unauthorized"); },
+        getAllExecutorFavorTransactionByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({status: args.status, handledByUserId: context.sub}).exec() : new AuthenticationError("unauthorized"); },
+        getAllUserFavorsRequestedTransaction: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({ handledByUserId : context.sub }).exec() : new AuthenticationError("unauthorized"); },
+        getAllUserFavorsWaitingForHandleTransaction: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({ ownerId : context.sub, status : JESTA_TRANSACTION_STATUS.WAITING}).exec(): new AuthenticationError("unauthorized"); },
     },
     Mutation: {
         createFavorTransactionRequest: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.createRequest(args, context): new AuthenticationError("unauthorized"); },
-        handleFavorTransactionRequest: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.handleRequest(args, context): new AuthenticationError("unauthorized"); },
-        deleteFavorTransactionRequest: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.handleRequest(args, context): new AuthenticationError("unauthorized"); },
+        handleFavorTransactionRequest: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.handleRequestApproved(args, context): new AuthenticationError("unauthorized"); },
+        deleteFavorTransactionRequest: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.handleRequestCanceled(args, context): new AuthenticationError("unauthorized"); },
         executorNotifyDoneFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.executorNotifyDoneFavor(args, context): new AuthenticationError("unauthorized"); },
-        ownerNotifyJestaHasBeenDone: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.executorNotifyDoneFavor(args, context): new AuthenticationError("unauthorized"); },
+        ownerNotifyJestaHasBeenDone: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.ownerNotifyJestaHasBeenDone(args, context): new AuthenticationError("unauthorized"); }, //TODO: handle rate
     }
 }

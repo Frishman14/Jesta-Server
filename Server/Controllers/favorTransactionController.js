@@ -27,7 +27,7 @@ exports.cancelRequest = async (args, context) => {
     if(favorTransaction["handledByUserId"] !== context.sub && context.role !== ROLES.ADMIN) {
         return new Error(ErrorId.Unauthorized); // Unauthorized to delete not your own request
     }
-    favorTransaction["status"] = JESTA_TRANSACTION_STATUS.WAITING;
+    favorTransaction["status"] = JESTA_TRANSACTION_STATUS.CANCELED;
     return await favorTransaction.delete().then((deletedTransactionRequest) => {
         logger.debug("deleted transaction request " + deletedTransactionRequest._id);
         return "Success";
@@ -37,30 +37,34 @@ exports.cancelRequest = async (args, context) => {
     })
 }
 
-exports.handleRequest = async (args, context) => {
+exports.handleRequestApproved = async (args, context) => {
     let favorTransaction = await FavorTransactions.findById(args["favorTransactionId"]).exec();
-    if(args.status === "Approved"){
-        favorTransaction["status"] = "Approved"
-    } else if (args.status === "Canceled"){
-        favorTransaction["status"] = "Canceled"
-    } else {
-        return new Error("Unknown status")
-    }
+    favorTransaction.status = JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME;
     return await favorTransaction.save().then(async (savedTransactionRequest) => {
-        logger.debug("created new transaction request " + savedTransactionRequest._id);
-        let favor = Favor.findById(favorTransaction.favorId).exec();
-        favor.status = JESTA_STATUS.UNAVAILABLE;
-        await favor.save().exec();
+        logger.debug("transaction approved " + savedTransactionRequest._id);
+        await Favor.updateOne({_id:favorTransaction.favorId},{status: JESTA_STATUS.UNAVAILABLE}).exec();
         return "Success";
     }).catch(error => {
-        logger.debug("error in updating transaction " + error);
+        logger.debug("error in approved transaction " + error);
+        return new Error(errorDuplicateKeyHandler(error))
+    })
+}
+
+exports.handleRequestCanceled = async (args, context) => {
+    let favorTransaction = await FavorTransactions.findById(args["favorTransactionId"]).exec();
+    favorTransaction.status = JESTA_TRANSACTION_STATUS.CANCELED;
+    return await favorTransaction.save().then(async (savedTransactionRequest) => {
+        logger.debug("transaction request canceled " + savedTransactionRequest._id);
+        return "Success";
+    }).catch(error => {
+        logger.debug("error in transaction request canceled " + error);
         return new Error(errorDuplicateKeyHandler(error))
     })
 }
 
 exports.executorNotifyDoneFavor = async (args, context) => {
     let favorTransaction = await FavorTransactions.findById(args["favorTransactionId"]).exec();
-    if (context.sub !== favorTransaction["handledByUserId"]){
+    if (context.sub !== favorTransaction["handledByUserId"].toString()){
         return new Error(ErrorId.Unauthorized);
     }
     favorTransaction["status"] = JESTA_TRANSACTION_STATUS.EXECUTOR_FINISH_JESTA;
@@ -75,14 +79,12 @@ exports.executorNotifyDoneFavor = async (args, context) => {
 
 exports.ownerNotifyJestaHasBeenDone = async (args, context) => {
     let favorTransaction = await FavorTransactions.findById(args["favorTransactionId"]).exec();
-    if (context.sub !== favorTransaction["favorOwnerId"]){
+    if (context.sub !== favorTransaction["favorOwnerId"].toString()){
         return new Error(ErrorId.Unauthorized);
     }
     favorTransaction["status"] = JESTA_TRANSACTION_STATUS.JESTA_DONE;
     return await favorTransaction.save().then(async (favorNotified) => {
-        let favor = Favor.findById(favorTransaction["favorOwnerId"]).exec();
-        favor["statue"] = JESTA_STATUS.UNAVAILABLE;
-        favor.save().exec();
+        await Favor.updateOne({_id:favorTransaction.favorId},{status: JESTA_STATUS.UNAVAILABLE}).exec();
         logger.debug("owner notify jesta has been done" + favorNotified._id);
         return "Success";
     }).catch(error => {

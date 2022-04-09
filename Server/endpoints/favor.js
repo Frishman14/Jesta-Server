@@ -64,6 +64,10 @@ exports.favorTypeDefs = gql`
                         FREE
                         CASH
                     }
+                    enum JestaStatus{
+                        Available
+                        Unavailable
+                    }
                     input FavorInput {
                         ownerId: String!
                         categoryId: [String!]!
@@ -95,6 +99,7 @@ exports.favorTypeDefs = gql`
                         getAllFavors: [Favor]
                         getFavorsInRadios(center: [Float], radius: Float): [Favor]
                         getByRadiosAndDateAndOnlyAvailable(center: [Float], radius: Float, startingDate: DateTime, limitDate: DateTime): [Favor]
+                        gatAllFavorsByStatus(status: JestaStatus): [Favor]
                     }
                     type Mutation {
                         createFavor(favor: FavorInput, image: Upload): Favor
@@ -109,6 +114,7 @@ exports.favorResolvers = {
         getFavor: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.findById(args.favorId).populate("ownerId categoryId").exec(): new AuthenticationError("unauthorized"); },
         getFavorsByDate: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({dateToPublish: {$gte: startOfDay(new Date(args["startingDate"]) - 24*60*60*1000), $lt: endOfDay(new Date(args["limitDate"]))}}).exec(): new AuthenticationError("unauthorized"); }, //TODO: moveToController
         getAllFavors: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({}).exec(): new AuthenticationError("unauthorized"); },
+        gatAllFavorsByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({_id:args.favorId,status:args.status}).exec(): new AuthenticationError("unauthorized"); },
         getFavorsInRadios: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.findByRadios(args): new AuthenticationError("unauthorized"); }, // returns by sourceAddress
         getByRadiosAndDateAndOnlyAvailable: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.findByRadiosAndDateAndOnlyAvailable(args): new AuthenticationError("unauthorized"); }, // returns by sourceAddress
     },
