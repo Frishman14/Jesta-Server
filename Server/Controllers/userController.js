@@ -5,7 +5,7 @@ const { errorDuplicateKeyHandler } = require('./errorHandlers');
 const logger = require("../logger");
 const { ROLES } = require("../Models/Common/consts")
 const User = require("../Models/User");
-const { uploadFile } = require("./imageUtils")
+const { uploadFile, deleteFile } = require("./imageUtils")
 const { PROFILE_IMAGES_PATH, PROFILE_IMAGE } = require('../consts');
 const { ErrorId } = require('../utilities/error-id');
 
@@ -34,7 +34,9 @@ exports.createOne = async (inputUser, isAdmin = false) => {
 exports.deleteOne = async (userParams) => {
     if (!userParams._id && !userParams.email)
         return new Error("must get user _id or email");
-    // TODO: add delete images
+    if (userParams.imagePath){
+        deleteFile(userParams.imagePath);
+    }
     return await User.deleteOne(userParams).then(deletedUser => {
         if (deletedUser.deletedCount === 0){
             logger.info("user is not exist " + userParams.email);
