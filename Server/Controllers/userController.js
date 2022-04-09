@@ -34,6 +34,7 @@ exports.createOne = async (inputUser, isAdmin = false) => {
 exports.deleteOne = async (userParams) => {
     if (!userParams._id && !userParams.email)
         return new Error("must get user _id or email");
+    // TODO: add delete images
     return await User.deleteOne(userParams).then(deletedUser => {
         if (deletedUser.deletedCount === 0){
             logger.info("user is not exist " + userParams.email);

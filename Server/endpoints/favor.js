@@ -25,6 +25,7 @@ exports.favorTypeDefs = gql`
                     }
                     type PopulatedFavor{
                         _id: String!
+                        status: String!
                         ownerId: User
                         categoryId: [Category]
                         numOfPeopleNeeded: Int!
@@ -42,6 +43,7 @@ exports.favorTypeDefs = gql`
                     }
                     type Favor {
                         _id: String!
+                        status: String!
                         ownerId: String!
                         categoryId: [String!]!
                         numOfPeopleNeeded: Int!
@@ -61,6 +63,10 @@ exports.favorTypeDefs = gql`
                         PAYPAL
                         FREE
                         CASH
+                    }
+                    enum JestaStatus{
+                        Available
+                        Unavailable
                     }
                     input FavorInput {
                         ownerId: String!
@@ -91,7 +97,9 @@ exports.favorTypeDefs = gql`
                         getFavor(favorId: String): PopulatedFavor
                         getFavorsByDate(startingDate: DateTime, limitDate: DateTime): [Favor]
                         getAllFavors: [Favor]
-                        getFavorsInRadios(center: [Float], radius: Float): [Favor] 
+                        getFavorsInRadios(center: [Float], radius: Float): [Favor]
+                        getByRadiosAndDateAndOnlyAvailable(center: [Float], radius: Float, startingDate: DateTime, limitDate: DateTime): [Favor]
+                        gatAllFavorsByStatus(status: JestaStatus): [Favor]
                     }
                     type Mutation {
                         createFavor(favor: FavorInput, image: Upload): Favor
@@ -106,7 +114,9 @@ exports.favorResolvers = {
         getFavor: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.findById(args.favorId).populate("ownerId categoryId").exec(): new AuthenticationError("unauthorized"); },
         getFavorsByDate: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({dateToPublish: {$gte: startOfDay(new Date(args["startingDate"]) - 24*60*60*1000), $lt: endOfDay(new Date(args["limitDate"]))}}).exec(): new AuthenticationError("unauthorized"); }, //TODO: moveToController
         getAllFavors: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({}).exec(): new AuthenticationError("unauthorized"); },
+        gatAllFavorsByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({_id:args.favorId,status:args.status}).exec(): new AuthenticationError("unauthorized"); },
         getFavorsInRadios: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.findByRadios(args): new AuthenticationError("unauthorized"); }, // returns by sourceAddress
+        getByRadiosAndDateAndOnlyAvailable: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.findByRadiosAndDateAndOnlyAvailable(args): new AuthenticationError("unauthorized"); }, // returns by sourceAddress
     },
     Mutation: {
         createFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.createOne(args): new AuthenticationError("unauthorized"); },

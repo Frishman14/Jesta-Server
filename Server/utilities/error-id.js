@@ -4,6 +4,7 @@ const ErrorId = {
     Invalid: "invalid",
     MissingParameters: "missing-params",
     Unauthorized: "unauthorized",
+    InternalError: "internal-error",
 }
 
 exports.ErrorId = ErrorId;

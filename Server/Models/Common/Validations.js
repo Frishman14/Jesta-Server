@@ -41,9 +41,28 @@ const validateReportsStatuses = function(status) {
     return false;
 }
 
+const validateJestaTransactionStatus = function(status) {
+    for (let r in consts.JESTA_TRANSACTION_STATUS){
+        if (status === consts.JESTA_TRANSACTION_STATUS[r])
+            return true;
+    }
+    return false;
+}
+
+const validateJestaStatus = function(status) {
+    for (let r in consts.JESTA_STATUS){
+        if (status === consts.JESTA_STATUS[r])
+            return true;
+    }
+    return false;
+}
+
+
 exports.validateRole = validateRole
 exports.validateResult = validateResult
 exports.validateReportsStatuses = validateReportsStatuses
 exports.validateBirthday = validateBirthday
 exports.validatePassword = validatePassword
 exports.validateEmail = validateEmail
+exports.validateJestaTransactionStatus = validateJestaTransactionStatus
+exports.validateJestaStatus = validateJestaStatus

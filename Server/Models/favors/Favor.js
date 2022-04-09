@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const { addressSchema } = require("../Common/Address");
+const constants = require("../Common/consts");
+const validation = require("../Common/Validations");
 
 let favorSchema = module.exports = mongoose.Schema({
     ownerId: {
@@ -54,7 +56,12 @@ let favorSchema = module.exports = mongoose.Schema({
     },
     paymentMethod: {
         type: String,
-    }
+    },
+    status: {
+        type: String,
+        default: constants.JESTA_STATUS.AVAILABLE,
+        validate: [validation.validateJestaStatus, "invalid status"]
+    },
 });
 
 let Favor = module.exports = mongoose.model('favor', favorSchema);
