@@ -102,9 +102,9 @@ exports.favorTypeDefs = gql`
                         gatAllFavorsByStatus(status: FavorStatus): [Favor]
                     }
                     type Mutation {
-                        createFavor(favor: FavorInput, image: Upload): Favor
+                        createFavor(favor: FavorInput, images: [Upload]): Favor
                         deleteFavor(favorId: String): String
-                        updateFavor(favorId: String, updatedFavor: UpdateFavorInput): String
+                        updateFavor(favorId: String, updatedFavor: UpdateFavorInput, newImages: [Upload]): String
                     }
                     `;
 
@@ -120,7 +120,7 @@ exports.favorResolvers = {
     },
     Mutation: {
         createFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.createOne(args): new AuthenticationError("unauthorized"); },
-        deleteFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.deleteOne(args, context): new AuthenticationError("unauthorized"); }, //TODO: add images
-        updateFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.updateOne(args, context): new AuthenticationError("unauthorized"); }, //TODO: add images
+        deleteFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.deleteOne(args, context): new AuthenticationError("unauthorized"); },
+        updateFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.updateOne(args, context): new AuthenticationError("unauthorized"); },
     }
 }
