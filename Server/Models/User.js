@@ -81,7 +81,7 @@ userSchema.pre('save', function(next){
     });
 });
 
-userSchema.pre("findOneAndUpdate", function(next){
+userSchema.pre("updateOne", function(next){
     let query = this;
     let update = query.getUpdate();
     if (!update.hashedPassword) return next();
