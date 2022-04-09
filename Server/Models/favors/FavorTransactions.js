@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const constants = require("../Common/consts");
+const validation = require("../Common/Validations");
 
 let favorTransactionSchema = module.exports = mongoose.Schema({
     favorId: {
@@ -18,7 +20,8 @@ let favorTransactionSchema = module.exports = mongoose.Schema({
     },
     status: {
         type: String,
-        default: "Waiting"
+        default: constants.JESTA_TRANSACTION_STATUS.WAITING,
+        validate: [validation.validateJestaTransactionStatus, "invalid status"]
     },
     handlerComment: {
         type: String
@@ -39,7 +42,7 @@ let favorTransactionSchema = module.exports = mongoose.Schema({
     dateLastModified: {
         type: Date,
         default: Date.now()
-    }
+    },
 });
 
 let FavorTransaction = module.exports = mongoose.model('favorTransaction', favorTransactionSchema);
