@@ -79,8 +79,9 @@ exports.userResolvers = {
     },
     Mutation: {
         signUpUser: (parent, args) => createOne(args),
-        deleteUser: (parent, args, context) => isAuthenticated(context) ? deleteOne(args) : new AuthenticationError("unauthorized"), //TODO: add images
-        updateUser: (parent, args, context) => isAuthenticated(context) ? updateOne(args) : new AuthenticationError("unauthorized"), //TODO: add images
+        deleteUser: (parent, args, context) => isAuthenticated(context) ? deleteOne(args) : new AuthenticationError("unauthorized"),
+        updateUser: (parent, args, context) => isAuthenticated(context) ? updateOne(args) : new AuthenticationError("unauthorized"),
+        // secureEmailPasswordAccountUpdate: (parent, args, context) => isAuthenticated(context) ? updateOne(args) : new AuthenticationError("unauthorized"),
         connectUser: async (parent, args) => { return await connect(args) },
         signUpAdmin: (parent, args, context) => isAuthenticated(context, ROLES.ADMIN) ? createOne(args, true) : new AuthenticationError("unauthorized"),
     }

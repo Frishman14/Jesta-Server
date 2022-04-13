@@ -49,7 +49,7 @@ exports.favorTransactionResolvers = {
         getAllFavorTransaction: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({}).exec() : new AuthenticationError("unauthorized"); },
         getAllOwnerFavorTransactionByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({status: JESTA_TRANSACTION_STATUS[args.status], ownerId: context.sub}).exec() : new AuthenticationError("unauthorized"); },
         getAllExecutorFavorTransactionByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({status: JESTA_TRANSACTION_STATUS[args.status], handledByUserId: context.sub}).exec() : new AuthenticationError("unauthorized"); },
-        getAllUserFavorsRequestedTransaction: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({ handledByUserId : context.sub }).exec() : new AuthenticationError("unauthorized"); },
+        getAllUserFavorsRequestedTransaction: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({ handledByUserId : context.sub }).populate("handledByUserId favorId").exec() : new AuthenticationError("unauthorized"); },
         getAllUserFavorsWaitingForHandleTransaction: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({ ownerId : context.sub, status : JESTA_TRANSACTION_STATUS.WAITING}).exec(): new AuthenticationError("unauthorized"); },
     },
     Mutation: {
