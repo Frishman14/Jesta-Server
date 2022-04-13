@@ -2,7 +2,7 @@ const User = require("../Models/User");
 const { isAuthenticated } = require("../middlewares/authorize")
 const { gql, AuthenticationError } = require("apollo-server-express");
 const { ROLES } = require('../Models/Common/consts');
-const { createOne, deleteOne, updateOne, connect } = require("../Controllers/userController");
+const { createOne, deleteOne, updateOne, connect, updateOneSecured } = require("../Controllers/userController");
 const { GraphQLUpload } = require('graphql-upload');
 
 exports.userTypeDefs = gql`
