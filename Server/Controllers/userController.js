@@ -49,7 +49,7 @@ exports.deleteOne = async (userParams) => {
 };
 
 exports.updateOneSecured = async (params) => {
-    if (this.connect(params)["token"]){
+    if (await this.connect(params)["token"]){
         if(params["updateParams"]["accountDelete"]){
             return User.remove({_id: params._id}).then(u => "success").catch(err => {
                 logger.error("failed to delete user " + err);
