@@ -27,9 +27,22 @@ exports.favorTransactionTypeDefs = gql`
                         dateCreated: DateTime
                         dateLastModified: DateTime
                     }
+                    type PopulatedFavorTransaction {
+                        _id: String!
+                        status: String!
+                        favorId: Favor!
+                        favorOwnerId: String!
+                        handledByUserId: User!
+                        ownerComment: String
+                        handlerComment: String
+                        dateAccepted: DateTime
+                        dateCompleted: DateTime
+                        dateCreated: DateTime
+                        dateLastModified: DateTime
+                    }
                     type Query {
                         getAllFavorTransaction: [FavorTransaction]
-                        getAllUserFavorsRequestedTransaction: [FavorTransaction]
+                        getAllUserFavorsRequestedTransaction: [PopulatedFavorTransaction]
                         getAllUserFavorsWaitingForHandleTransaction: [FavorTransaction]
                         getAllOwnerFavorTransactionByStatus(status: FavorTransactionStatus): [FavorTransaction]
                         getAllExecutorFavorTransactionByStatus(status: FavorTransactionStatus): [FavorTransaction]

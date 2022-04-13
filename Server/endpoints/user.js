@@ -41,6 +41,11 @@ exports.userTypeDefs = gql`
                         longitude: Float
                         altitude: Float
                     }
+                    input UserSecureUpdate {
+                        email: String
+                        password: String
+                        
+                    }
                     input UserUpdateInput {
                         firstName: String
                         lastName: String
