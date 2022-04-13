@@ -8,6 +8,7 @@ const User = require("../Models/User");
 const { uploadFile, deleteFile } = require("./imageUtils")
 const { PROFILE_IMAGES_PATH, PROFILE_IMAGE } = require('../consts');
 const { ErrorId } = require('../utilities/error-id');
+const {AuthenticationError} = require("apollo-server-express");
 
 exports.createOne = async (inputUser, isAdmin = false) => {
     let userToCreate = inputUser.userParams;
@@ -46,6 +47,29 @@ exports.deleteOne = async (userParams) => {
         return "success";
     })
 };
+
+exports.updateOneSecured = async (params) => {
+    if (this.connect(params)["token"]){
+        if(params["updateParams"]["accountDelete"]){
+            return User.remove({_id: params._id}).then(u => "success").catch(err => {
+                logger.error("failed to delete user " + err);
+                return "failed";
+            });
+        }
+        let parametersToUpdate = {};
+        if(params["updateParams"]["email"]){
+            parametersToUpdate["email"] = params["updateParams"]["email"];
+        }
+        if(params["updateParams"]["password"]){
+            parametersToUpdate["email"] = params["updateParams"]["password"];
+        }
+        return User.updateOne({_id: params._id},parametersToUpdate, {runValidators: true}).then(u => "success").catch(err => {
+            logger.error("failed to delete user " + err);
+            return "failed";
+        });
+    }
+    return new AuthenticationError("unauthorized");
+}
 
 exports.updateOne = async (params) => {
     if (!params._id && !params.email)

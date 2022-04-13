@@ -44,7 +44,7 @@ exports.userTypeDefs = gql`
                     input UserSecureUpdate {
                         email: String
                         password: String
-                        
+                        accountDelete: Boolean
                     }
                     input UserUpdateInput {
                         firstName: String
@@ -71,6 +71,7 @@ exports.userTypeDefs = gql`
                         signUpAdmin(userParams: UserCreateInput, file: Upload): JWT
                         deleteUser(_id: String, email: String): String
                         updateUser(_id: String, email: String, updatedUser: UserUpdateInput, newImage: Upload): String
+                        secureEmailPasswordAccountUpdate(_id: String, email: String, password: String, updateParams: UserSecureUpdate): String
                         connectUser(email: String!, password: String!): JWT
                     }
                     `;
@@ -86,7 +87,7 @@ exports.userResolvers = {
         signUpUser: (parent, args) => createOne(args),
         deleteUser: (parent, args, context) => isAuthenticated(context) ? deleteOne(args) : new AuthenticationError("unauthorized"),
         updateUser: (parent, args, context) => isAuthenticated(context) ? updateOne(args) : new AuthenticationError("unauthorized"),
-        // secureEmailPasswordAccountUpdate: (parent, args, context) => isAuthenticated(context) ? updateOne(args) : new AuthenticationError("unauthorized"),
+        secureEmailPasswordAccountUpdate: (parent, args, context) => isAuthenticated(context) ? updateOneSecured(args) : new AuthenticationError("unauthorized"),
         connectUser: async (parent, args) => { return await connect(args) },
         signUpAdmin: (parent, args, context) => isAuthenticated(context, ROLES.ADMIN) ? createOne(args, true) : new AuthenticationError("unauthorized"),
     }
