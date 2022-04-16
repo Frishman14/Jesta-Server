@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const constants = require("../Common/consts");
 const validation = require("../Common/Validations");
+const bcrypt = require("bcrypt");
 
 let favorTransactionSchema = module.exports = mongoose.Schema({
     favorId: {
@@ -48,6 +49,13 @@ let favorTransactionSchema = module.exports = mongoose.Schema({
         ref: "user",
     }
 });
+
+favorTransactionSchema.pre("updateOne", function(next){
+    let query = this;
+    let update = query.getUpdate();
+    update.dateLastModified = Date.now();
+    next();
+})
 
 let FavorTransaction = module.exports = mongoose.model('favorTransaction', favorTransactionSchema);
 
