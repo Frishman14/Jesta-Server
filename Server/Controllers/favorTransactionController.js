@@ -4,7 +4,6 @@ const Favor = require("../Models/favors/Favor");
 const {ROLES, JESTA_TRANSACTION_STATUS, JESTA_STATUS} = require("../Models/Common/consts");
 const {errorDuplicateKeyHandler} = require("./errorHandlers");
 const { ErrorId } = require("../utilities/error-id");
-const {UnauthorizedError} = require("express-jwt");
 const {AuthenticationError} = require("apollo-server-express");
 
 exports.createRequest = async (args, context) => {
@@ -15,26 +14,14 @@ exports.createRequest = async (args, context) => {
     favorTransaction["handlerComment"] = args.comment;
     favorTransaction["favorOwnerId"] = favor["ownerId"];
     favorTransaction["status"] = JESTA_TRANSACTION_STATUS.PENDING_FOR_OWNER;
+    if (await FavorTransactions.exists({favorId: favorTransaction["favorId"],handledByUserId: favorTransaction["handledByUserId"],favorOwnerId: favorTransaction["favorOwnerId"]})){
+        return new Error(ErrorId.Exists);
+    }
     return await favorTransaction.save().then((savedTransactionRequest) => {
         logger.debug("created new transaction request " + savedTransactionRequest._id);
         return "Success";
     }).catch(error => {
         logger.debug("error in creating new transaction " + error);
-        return new Error(errorDuplicateKeyHandler(error))
-    })
-}
-
-exports.cancelRequest = async (args, context) => {
-    let favorTransaction = await FavorTransactions.findById(args["favorTransactionId"]).populate("favorId").exec();
-    if(favorTransaction["handledByUserId"] !== context.sub && context.role !== ROLES.ADMIN) {
-        return new Error(ErrorId.Unauthorized); // Unauthorized to delete not your own request
-    }
-    favorTransaction["status"] = JESTA_TRANSACTION_STATUS.CANCELED;
-    return await favorTransaction.delete().then((deletedTransactionRequest) => {
-        logger.debug("deleted transaction request " + deletedTransactionRequest._id);
-        return "Success";
-    }).catch(error => {
-        logger.debug("error in deleteing transaction " + error);
         return new Error(errorDuplicateKeyHandler(error))
     })
 }
