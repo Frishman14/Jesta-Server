@@ -4,6 +4,8 @@ const Favor = require("../Models/favors/Favor");
 const {ROLES, JESTA_TRANSACTION_STATUS, JESTA_STATUS} = require("../Models/Common/consts");
 const {errorDuplicateKeyHandler} = require("./errorHandlers");
 const { ErrorId } = require("../utilities/error-id");
+const {UnauthorizedError} = require("express-jwt");
+const {AuthenticationError} = require("apollo-server-express");
 
 exports.createRequest = async (args, context) => {
     let favorTransaction = new FavorTransactions();
@@ -52,6 +54,9 @@ exports.handleRequestApproved = async (args, context) => {
 
 exports.handleRequestCanceled = async (args, context) => {
     let favorTransaction = await FavorTransactions.findById(args["favorTransactionId"]).exec();
+    if(favorTransaction["favorOwnerId"] !== context.sub.toString() && favorTransaction["handledByUserId"] !== context.sub.toString() && context.role !== ROLES.ADMIN){
+        return new AuthenticationError("unauthorized");
+    }
     favorTransaction.status = JESTA_TRANSACTION_STATUS.CANCELED;
     return await favorTransaction.save().then(async (savedTransactionRequest) => {
         logger.debug("transaction request canceled " + savedTransactionRequest._id);
