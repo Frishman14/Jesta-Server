@@ -60,7 +60,7 @@ exports.favorTransactionTypeDefs = gql`
 exports.favorTransactionResolvers = {
     Upload: GraphQLUpload,
     Query: {
-        getAllUserFavorTransactionByFavorId: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.findOne({"favorId": args.favorId, "handledByUserId": context.sub.toString()}).exec() : new AuthenticationError("unauthorized"); },
+        getAllUserFavorTransactionByFavorId: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.findOne({"favorId": args.favorId, "handledByUserId": context.sub}).exec() : new AuthenticationError("unauthorized"); },
         getAllFavorTransaction: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({}).exec() : new AuthenticationError("unauthorized"); },
         getAllOwnerFavorTransactionByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({status: JESTA_TRANSACTION_STATUS[args.status], ownerId: context.sub}).exec() : new AuthenticationError("unauthorized"); },
         getAllExecutorFavorTransactionByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({status: JESTA_TRANSACTION_STATUS[args.status], handledByUserId: context.sub}).exec() : new AuthenticationError("unauthorized"); },
