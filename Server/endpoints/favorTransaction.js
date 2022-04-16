@@ -41,7 +41,7 @@ exports.favorTransactionTypeDefs = gql`
                         dateLastModified: DateTime
                     }
                     type Query {
-                        getAllFavorTransactionByFavorId(favorId: String!): [FavorTransaction]
+                        getAllUserFavorTransactionByFavorId(favorId: String!): [FavorTransaction]
                         getAllFavorTransaction: [FavorTransaction]
                         getAllUserFavorsRequestedTransaction: [PopulatedFavorTransaction]
                         getAllUserFavorsWaitingForHandleTransaction: [FavorTransaction]
@@ -60,7 +60,7 @@ exports.favorTransactionTypeDefs = gql`
 exports.favorTransactionResolvers = {
     Upload: GraphQLUpload,
     Query: {
-        getAllFavorTransactionByFavorId: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({"favorId": args.favorId}).exec() : new AuthenticationError("unauthorized"); },
+        getAllUserFavorTransactionByFavorId: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({"favorId": args.favorId, "handledByUserId":context.sub.toString()}).exec() : new AuthenticationError("unauthorized"); },
         getAllFavorTransaction: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({}).exec() : new AuthenticationError("unauthorized"); },
         getAllOwnerFavorTransactionByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({status: JESTA_TRANSACTION_STATUS[args.status], ownerId: context.sub}).exec() : new AuthenticationError("unauthorized"); },
         getAllExecutorFavorTransactionByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({status: JESTA_TRANSACTION_STATUS[args.status], handledByUserId: context.sub}).exec() : new AuthenticationError("unauthorized"); },
