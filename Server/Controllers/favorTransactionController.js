@@ -46,6 +46,7 @@ exports.handleRequestCanceled = async (args, context) => {
     }
     favorTransaction.status = JESTA_TRANSACTION_STATUS.CANCELED;
     return await favorTransaction.save().then(async (savedTransactionRequest) => {
+        await Favor.updateOne({_id:favorTransaction.favorId},{status: JESTA_STATUS.AVAILABLE}).exec();
         logger.debug("transaction request canceled " + savedTransactionRequest._id);
         return "Success";
     }).catch(error => {
