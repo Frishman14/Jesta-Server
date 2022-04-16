@@ -45,6 +45,7 @@ exports.handleRequestCanceled = async (args, context) => {
         return new AuthenticationError("unauthorized");
     }
     favorTransaction.status = JESTA_TRANSACTION_STATUS.CANCELED;
+    favorTransaction.canceledBy = context.sub.toString();
     return await favorTransaction.save().then(async (savedTransactionRequest) => {
         await Favor.updateOne({_id:favorTransaction.favorId},{status: JESTA_STATUS.AVAILABLE}).exec();
         logger.debug("transaction request canceled " + savedTransactionRequest._id);

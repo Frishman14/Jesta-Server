@@ -43,6 +43,10 @@ let favorTransactionSchema = module.exports = mongoose.Schema({
         type: Date,
         default: Date.now()
     },
+    canceledBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user",
+    }
 });
 
 let FavorTransaction = module.exports = mongoose.model('favorTransaction', favorTransactionSchema);
