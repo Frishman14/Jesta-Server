@@ -41,7 +41,7 @@ exports.handleRequestApproved = async (args, context) => {
 
 exports.handleRequestCanceled = async (args, context) => {
     let favorTransaction = await FavorTransactions.findById(args["favorTransactionId"]).exec();
-    if(favorTransaction["favorOwnerId"] !== context.sub && favorTransaction["handledByUserId"] !== context.sub && context.role !== ROLES.ADMIN){
+    if(favorTransaction["favorOwnerId"].toString() !== context.sub && favorTransaction["handledByUserId"].toString() !== context.sub && context.role !== ROLES.ADMIN){
         return new AuthenticationError("unauthorized");
     }
     favorTransaction.status = JESTA_TRANSACTION_STATUS.CANCELED;
