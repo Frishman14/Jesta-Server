@@ -10,7 +10,7 @@ const startOfDay = require("date-fns/startOfDay");
 const endOfDay = require("date-fns/endOfDay");
 
 exports.createOne = async (args) => {
-    if(args.images.length > 0) {
+    if(args["images"] && args["images"].length > 0) {
         await args.images.forEach(image => {
             uploadFile(image, FAVOR_IMAGES_PATH, FAVOR_IMAGE).then(result => args.favor.imagesPath = [result]);
         })
@@ -29,7 +29,7 @@ exports.deleteOne = async (params, token) => {
     if (!params.favorId) return new Error(ErrorId.MissingParameters);
     if (!await validateDetails(params, token)) return new Error(ErrorId.Unauthorized); // unauthorized to delete someone else favor
     return await Favor.findByIdAndDelete(params.favorId).then((deletedFavor) => {
-        if(deletedFavor.imagesPath.length > 0){
+        if(deletedFavor["imagesPath"] && deletedFavor["imagesPath"].length > 0){
             deletedFavor.imagesPath.forEach(image => {
                 deleteFile(image);
             })
@@ -47,7 +47,7 @@ exports.updateOne = async (params, token) => {
     if (!await validateDetails(params, token)) return new Error(ErrorId.Unauthorized); // unauthorized to update someone else favor
     return await Favor.findByIdAndUpdate(params.favorId, params["updatedFavor"]).then(async updatedFavor => {
         if(params["newImages"]){
-            if(updatedFavor.imagesPath.length > 0){
+            if(updatedFavor["imagesPath"] && updatedFavor["imagesPath"].length > 0){
                 updatedFavor.imagesPath.forEach(image => {
                     deleteFile(image);
                 })
