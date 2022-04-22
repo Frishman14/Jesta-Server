@@ -98,7 +98,7 @@ exports.favorTypeDefs = gql`
                         getFavorsByDate(startingDate: DateTime, limitDate: DateTime): [Favor]
                         getAllFavors: [Favor]
                         getFavorsInRadios(center: [Float], radius: Float): [Favor]
-                        getByRadiosAndDateAndOnlyAvailable(center: [Float], radius: Float, startingDate: DateTime, limitDate: DateTime): [Favor]
+                        getByRadiosAndDateAndOnlyAvailable(center: [Float], radius: Float, startingDate: DateTime, limitDate: DateTime, notIncludeMe: Boolean): [Favor]
                         gatAllFavorsByStatus(status: FavorStatus): [Favor]
                     }
                     type Mutation {
@@ -116,7 +116,7 @@ exports.favorResolvers = {
         getAllFavors: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({}).exec(): new AuthenticationError("unauthorized"); },
         gatAllFavorsByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({_id:args.favorId,status:args.status}).exec(): new AuthenticationError("unauthorized"); },
         getFavorsInRadios: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.findByRadios(args): new AuthenticationError("unauthorized"); }, // returns by sourceAddress
-        getByRadiosAndDateAndOnlyAvailable: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.findByRadiosAndDateAndOnlyAvailable(args): new AuthenticationError("unauthorized"); }, // returns by sourceAddress
+        getByRadiosAndDateAndOnlyAvailable: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.findByRadiosAndDateAndOnlyAvailable(args, context): new AuthenticationError("unauthorized"); }, // returns by sourceAddress
     },
     Mutation: {
         createFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.createOne(args): new AuthenticationError("unauthorized"); },

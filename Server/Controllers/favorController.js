@@ -76,7 +76,7 @@ exports.findByRadios = async (params) => {
     return await Favor.find(query).exec();
 }
 
-exports.findByRadiosAndDateAndOnlyAvailable = async (params) => {
+exports.findByRadiosAndDateAndOnlyAvailable = async (params, context) => {
     let query = {
         "dateToPublish": {
             $gte: startOfDay(new Date(params["startingDate"]) - 24*60*60*1000),
@@ -89,6 +89,9 @@ exports.findByRadiosAndDateAndOnlyAvailable = async (params) => {
         },
         "status": JESTA_STATUS.AVAILABLE
     };
+    if(params["notIncludeMe"]){
+        query["ownerId"] = { $ne: context.sub }
+    }
     return await Favor.find(query).exec();
 }
 
