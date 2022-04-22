@@ -27,6 +27,7 @@
     "graphql-upload": "^13.0.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.1.6",
+    "node-cron": "^3.0.0",
     "nodemon": "^2.0.15",
     "swagger-jsdoc": "^6.1.0",
     "swagger-ui-express": "^4.3.0",

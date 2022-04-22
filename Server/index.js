@@ -4,7 +4,6 @@ const { createOne } = require("./Controllers/userController");
 const { ApolloServer } = require('apollo-server-express');
 const { ApolloServerPluginDrainHttpServer } = require("apollo-server-core")
 const http = require("http");
-const logger = require("./logger");
 const { userTypeDefs, userResolvers } = require('./endpoints/user');
 const { performTypeDefs, performResolvers } = require('./endpoints/perform');
 const { categoryTypeDefs, categoryResolvers } = require('./endpoints/category');
@@ -13,6 +12,10 @@ const { favorTransactionResolvers, favorTransactionTypeDefs} = require('./endpoi
 const { decodeToken } = require('./middlewares/authorize');
 const { graphqlUploadExpress } = require('graphql-upload');
 const User = require("./Models/User");
+const serviceManager = require("./Services/servicesManager");
+const mostVolunteeredService = require("./Services/Gimification/getTheMostVolunteers");
+
+const logger = require("./logger");
 
 const PORT = process.env.PORT || 4111;
 const resolvers = [userResolvers, favorResolvers, categoryResolvers, performResolvers, favorTransactionResolvers]
@@ -32,6 +35,11 @@ async function startApolloServer(typeDefs, resolvers){
     }
     else
         logger.info('db connected successfully');
+
+    const every15minServices = []
+    const everyDayServices = [mostVolunteeredService]
+
+    serviceManager.start({every15minServices,everyDayServices})
 
     User.find({email: "admin@jesta.com"}, function(error, user){
         if(user.length === 0){

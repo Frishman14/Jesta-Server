@@ -58,6 +58,7 @@ exports.favorTypeDefs = gql`
                         dateLockedOut: DateTime
                         dateCreated: DateTime
                         dateLastModified: DateTime
+                        mostVolunteeredOwner: Boolean
                     }
                     enum PaymentType {
                         PAYPAL

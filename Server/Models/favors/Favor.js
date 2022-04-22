@@ -62,6 +62,10 @@ let favorSchema = module.exports = mongoose.Schema({
         default: constants.JESTA_STATUS.AVAILABLE,
         validate: [validation.validateJestaStatus, "invalid status"]
     },
+    mostVolunteeredOwner: {
+        type: Boolean,
+        default: false
+    }
 });
 
 let Favor = module.exports = mongoose.model('favor', favorSchema);

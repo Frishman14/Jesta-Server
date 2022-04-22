@@ -29,6 +29,7 @@ exports.userTypeDefs = gql`
                         role: String
                         imagePath: String
                         created_date: String
+                        mostVolunteered: Boolean
                     }
                     input UserCreateInput {
                         firstName: String!

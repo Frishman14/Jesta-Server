@@ -57,6 +57,10 @@ let userSchema = module.exports = mongoose.Schema({
     created_date:{
         type: Date,
         default: Date.now()
+    },
+    mostVolunteered: {
+        type: Boolean,
+        default: false
     }
 });
 
