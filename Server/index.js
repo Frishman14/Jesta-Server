@@ -39,7 +39,7 @@ async function startApolloServer(typeDefs, resolvers){
     const every15minServices = []
     const everyDayServices = [mostVolunteeredService]
 
-    serviceManager.start({every15minServices,everyDayServices})
+    serviceManager.start(everyDayServices, every15minServices)
 
     User.find({email: "admin@jesta.com"}, function(error, user){
         if(user.length === 0){

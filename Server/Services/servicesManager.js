@@ -1,17 +1,17 @@
 const cron = require('node-cron');
 const logger = require("../logger");
 
-exports.start = (args) => {
-    args["everyDayServices"].forEach(service => service.run())
-    args["every15minServices"].forEach(service => service.run())
+exports.start = (everyDayServices, every15minServices) => {
+    everyDayServices.forEach(service => service.run())
+    every15minServices.forEach(service => service.run())
 
-    cron.schedule('0 16 * * *', function(){
+    cron.schedule('0 23 * * *', function(){
         logger.info('running the everyDayServices');
-        args["everyDayServices"].forEach(service => service.run())
+        everyDayServices.forEach(service => service.run())
     });
 
     cron.schedule('*/15 * * * *', function(){
         logger.info('running the every15minServices');
-        args["every15minServices"].forEach(service => service.run())
+        every15minServices.forEach(service => service.run())
     });
 }
