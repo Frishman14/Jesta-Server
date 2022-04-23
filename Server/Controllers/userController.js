@@ -60,6 +60,9 @@ exports.updateOneSecured = async (params) => {
         let parametersToUpdate = {};
         if(params["updateParams"]["email"] !== undefined){
             parametersToUpdate["email"] = params["updateParams"]["email"];
+            if (await User.exists({"email": params["updateParams"]["email"]})){
+                return new Error(ErrorId.Exists)
+            }
         }
         if(params["updateParams"]["password"] !== undefined){
             parametersToUpdate["password"] = params["updateParams"]["password"];
