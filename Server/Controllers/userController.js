@@ -49,7 +49,8 @@ exports.deleteOne = async (userParams) => {
 };
 
 exports.updateOneSecured = async (params) => {
-    if (await this.connect(params)["token"]){
+    var connectionResult = await this.connect(params)
+    if (connectionResult["token"] !== undefined){
         if(params["updateParams"]["accountDelete"]){
             return User.remove({_id: params._id}).then(u => "success").catch(err => {
                 logger.error("failed to delete user " + err);
@@ -57,14 +58,15 @@ exports.updateOneSecured = async (params) => {
             });
         }
         let parametersToUpdate = {};
-        if(params["updateParams"]["email"]){
+        if(params["updateParams"]["email"] !== undefined){
             parametersToUpdate["email"] = params["updateParams"]["email"];
         }
-        if(params["updateParams"]["password"]){
-            parametersToUpdate["email"] = params["updateParams"]["password"];
+        if(params["updateParams"]["password"] !== undefined){
+            parametersToUpdate["password"] = params["updateParams"]["password"];
         }
-        return User.updateOne({_id: params._id},parametersToUpdate, {runValidators: true}).then(u => "success").catch(err => {
-            logger.error("failed to delete user " + err);
+        var filter = params._id !== undefined ? { '_id' : params._id } : {'email' : params.email }
+        return User.findOneAndUpdate(filter,{ $set: parametersToUpdate }, {runValidators: true}).then(u => "success").catch(err => {
+            logger.error("failed to update user " + err);
             return "failed";
         });
     }
@@ -97,9 +99,10 @@ exports.updateOne = async (params) => {
 }
 
 exports.connect = async (userDetails) => {
-    if (!userDetails.password || !userDetails.email)
+    if (!userDetails.password && (!userDetails.email || !userDetails._id))
         return new Error(ErrorId.MissingParameters);
-    return await User.findOne({'email': userDetails.email}, 'hashedPassword _id role').then(async (user) => {
+    var filter = userDetails._id !== undefined ? { '_id' : userDetails._id } : {'email' : userDetails.email }
+    return await User.findOne(filter, 'hashedPassword _id role').then(async (user) => {
         if (!user) {
             return new Error(ErrorId.Invalid);
         }

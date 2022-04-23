@@ -89,6 +89,9 @@ userSchema.pre("updateOne", function(next){
     let query = this;
     let update = query.getUpdate();
     if (!update.hashedPassword) return next();
+    if (!validation.validatePassword(update['$set'].password)){
+        return new Error("invalid")
+    }
      // generate a salt
      bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
         if (err) return next(err);
@@ -97,6 +100,28 @@ userSchema.pre("updateOne", function(next){
         bcrypt.hash(update.hashedPassword, salt, function(err, hash) {
             if (err) return next(err);
     
+            // override the cleartext password with the hashed one
+            update.hashedPassword = hash;
+            update.datePasswordModified = Date.now()
+            next();
+        });
+    });
+})
+
+userSchema.pre("findOneAndUpdate", function(next){
+    let query = this;
+    let update = query.getUpdate();
+    if (!update['$set'].password) return next();
+    // generate a salt
+    bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
+        if (err) return next(err);
+        if (!validation.validatePassword(update['$set'].password)){
+            return next(new Error("invalid"));
+        }
+        // hash the password along with our new salt
+        bcrypt.hash(update['$set'].password, salt, function(err, hash) {
+            if (err) return next(err);
+
             // override the cleartext password with the hashed one
             update.hashedPassword = hash;
             update.datePasswordModified = Date.now()

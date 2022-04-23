@@ -36,6 +36,7 @@ async function startApolloServer(typeDefs, resolvers){
     else
         logger.info('db connected successfully');
 
+    // app services section
     const every15minServices = []
     const everyDayServices = [mostVolunteeredService]
 
