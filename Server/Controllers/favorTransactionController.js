@@ -9,6 +9,9 @@ const {AuthenticationError} = require("apollo-server-express");
 exports.createRequest = async (args, context) => {
     let favorTransaction = new FavorTransactions();
     let favor = await Favor.findById(args.favorId).exec();
+    if (favor["ownerId"] === favorTransaction["handledByUserId"]){
+        return new Error(ErrorId.Invalid);
+    }
     favorTransaction["favorId"] = args.favorId;
     favorTransaction["handledByUserId"] = context.sub;
     favorTransaction["handlerComment"] = args.comment;
