@@ -1,6 +1,7 @@
 const logger = require("../logger");
 const FavorTransactions = require("../Models/favors/FavorTransactions");
 const Favor = require("../Models/favors/Favor");
+const User = require("../Models/User");
 const {ROLES, JESTA_TRANSACTION_STATUS, JESTA_STATUS} = require("../Models/Common/consts");
 const {errorDuplicateKeyHandler} = require("./errorHandlers");
 const { ErrorId } = require("../utilities/error-id");
@@ -83,9 +84,21 @@ exports.ownerNotifyJestaHasBeenDone = async (args, context) => {
     return await favorTransaction.save().then(async (favorNotified) => {
         await Favor.updateOne({_id:favorTransaction.favorId},{status: JESTA_STATUS.UNAVAILABLE}).exec();
         logger.debug("owner notify jesta has been done" + favorNotified._id);
+        if(args["rate"] !== undefined){
+            await rateUser(favorTransaction["handledByUserId"], args["rate"])
+        }
         return "Success";
     }).catch(error => {
-        logger.debug("owner failed to notify jesta has been done" + error);
+        logger.debug("owner failed to notify jesta has been done " + error);
         return new Error(errorDuplicateKeyHandler(error))
+    })
+}
+
+const rateUser = async (userId, rating) => {
+    User.findOne(userId).then(user => {
+        let numOfRates = isNaN(user["number_of_rates"]) ? 1 : user["number_of_rates"];
+        let currentRating = isNaN(user["rating"]) ? 5 : user["rating"];
+        let newRating = ((numOfRates * currentRating) + rating)/(numOfRates+1);
+        User.updateOne({ "_id": userId },{$set : {"number_of_rates" : numOfRates + 1, rating: newRating }}).exec();
     })
 }

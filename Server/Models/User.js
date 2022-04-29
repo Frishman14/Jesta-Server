@@ -61,6 +61,14 @@ let userSchema = module.exports = mongoose.Schema({
     mostVolunteered: {
         type: Boolean,
         default: false
+    },
+    rating: {
+        type: Number,
+        default: 5
+    },
+    number_of_rates: {
+        type: Number,
+        default: 1
     }
 });
 

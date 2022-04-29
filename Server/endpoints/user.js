@@ -30,6 +30,7 @@ exports.userTypeDefs = gql`
                         imagePath: String
                         created_date: String
                         mostVolunteered: Boolean
+                        rating: Float
                     }
                     input UserCreateInput {
                         firstName: String!
