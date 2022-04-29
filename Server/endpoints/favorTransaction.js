@@ -45,8 +45,8 @@ exports.favorTransactionTypeDefs = gql`
                         getAllFavorTransaction: [FavorTransaction]
                         getAllUserFavorsRequestedTransaction: [PopulatedFavorTransaction]
                         getAllUserFavorsWaitingForHandleTransaction: [FavorTransaction]
-                        getAllOwnerFavorTransactionByStatus(status: FavorTransactionStatus): [FavorTransaction]
-                        getAllExecutorFavorTransactionByStatus(status: FavorTransactionStatus): [FavorTransaction]
+                        getAllOwnerFavorTransactionByStatus(status: FavorTransactionStatus): [PopulatedFavorTransaction]
+                        getAllExecutorFavorTransactionByStatus(status: FavorTransactionStatus): [PopulatedFavorTransaction]
                     }
                     type Mutation {
                         createFavorTransactionRequest(favorId: String!, comment: String): String
