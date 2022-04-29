@@ -3,6 +3,13 @@ const Category = require("../Models/favors/Category");
 const { ErrorId } = require("../utilities/error-id");
 const {errorDuplicateKeyHandler} = require("./errorHandlers");
 
+exports.getOne = async (params) => {
+    if (params["id"] === undefined && params["name"] === undefined)
+        return new Error(ErrorId.MissingParameters);
+    let filter = params["id"] === undefined ? {name: params["name"]} : {"_id":params["id"]};
+    return await Category.findOne(filter).exec();
+}
+
 exports.createOne = async (categoryName) => {
     let category = new Category(categoryName)
     return await category.save().then((savedCategory) => {

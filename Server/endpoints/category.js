@@ -12,6 +12,7 @@ exports.categoryTypeDefs = gql`
                         dateLastModified: DateTime
                     }
                     type Query {
+                        getCategory(name: String, id: String): Category
                         getAllCategories: [Category]
                         getAllParentCategories: [Category]
                     }
@@ -25,6 +26,7 @@ exports.categoryTypeDefs = gql`
 exports.categoryResolvers = {
     Query: {
         // categories
+        getCategory:  async (parent, args, context) => { return isAuthenticated(context, ROLES.ADMIN) ? await categoryController.getOne(args): new AuthenticationError("unauthorized"); },
         getAllCategories: async (parent, args, context) => { return isAuthenticated(context) ? await Category.find({}).populate("parentCategory").exec(): new AuthenticationError("unauthorized"); },
         getAllParentCategories: async (parent, args, context) => { return isAuthenticated(context) ? await Category.find({parentCategory: { $ne: null }}).populate("parentCategory").exec(): new AuthenticationError("unauthorized"); },
     },
