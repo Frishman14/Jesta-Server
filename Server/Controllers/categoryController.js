@@ -7,7 +7,7 @@ exports.getOne = async (params) => {
     if (params["id"] === undefined && params["name"] === undefined)
         return new Error(ErrorId.MissingParameters);
     let filter = params["id"] === undefined ? {name: params["name"]} : {"_id":params["id"]};
-    return await Category.findOne(filter).exec();
+    return await Category.findOne(filter).populate("parentCategory").exec();
 }
 
 exports.createOne = async (categoryName) => {

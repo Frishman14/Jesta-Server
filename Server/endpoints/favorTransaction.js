@@ -72,6 +72,6 @@ exports.favorTransactionResolvers = {
         handleFavorTransactionRequest: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.handleRequestApproved(args, context): new AuthenticationError("unauthorized"); },
         cancelFavorTransaction: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.handleRequestCanceled(args, context): new AuthenticationError("unauthorized"); },
         executorNotifyDoneFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.executorNotifyDoneFavor(args, context): new AuthenticationError("unauthorized"); },
-        ownerNotifyJestaHasBeenDone: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.ownerNotifyJestaHasBeenDone(args, context): new AuthenticationError("unauthorized"); }, //TODO: handle rate
+        ownerNotifyJestaHasBeenDone: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.ownerNotifyJestaHasBeenDone(args, context): new AuthenticationError("unauthorized"); },
     }
 }
