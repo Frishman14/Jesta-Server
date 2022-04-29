@@ -77,10 +77,11 @@ exports.findByRadios = async (params) => {
 }
 
 exports.findByRadiosAndDateAndOnlyAvailable = async (params, context) => {
-    let dateYearAgo = new Date().getFullYear() - 1;
-    let dateYearLater = new Date().getFullYear() + 1;
-    let startingDate = params["startingDate"] === undefined ? startOfDay(dateYearAgo) : startOfDay(new Date(params["startingDate"]) - 24*60*60*1000);
-    let limitDate = params["limitDate"] === undefined ? startOfDay(dateYearLater) : startOfDay(new Date(params["limitDate"]));
+    let dateYearAgo = new Date().getDate() - 365;
+    let dateYearLater = new Date().getDate() + 365;
+    let startingDate = params["startingDate"] === null ? startOfDay(new Date().setDate(dateYearAgo)) : startOfDay(new Date(params["startingDate"]) - 24*60*60*1000);
+    let limitDate = params["limitDate"] === null ? startOfDay(new Date().setDate(dateYearLater)) : startOfDay(new Date(params["limitDate"]));
+    console.log(limitDate)
     let query = {
         "dateToPublish": {
             $gte: startingDate,
