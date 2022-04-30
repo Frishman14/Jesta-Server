@@ -48,6 +48,17 @@ exports.handleRequestApproved = async (args, context) => {
     favorTransaction.status = JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME;
     return await favorTransaction.save().then(async (savedTransactionRequest) => {
         logger.debug("transaction approved " + savedTransactionRequest._id);
+        let user = await User.findById(favorTransaction["handledByUserId"]).exec();
+        if ( user["notificationToken"] !== null || user["notificationToken"] !== undefined){
+            logger.debug("sending notification to " + favorTransaction["handledByUserId"])
+            const message = {
+                notification : {
+                    "title":"מישהו אישר את הבקשה שלך לעשות ג'סטה",
+                    "body": "בוא בדוק מי זה"
+                }
+            };
+            sentToOneUserMessage(user["notificationToken"],message,"high")
+        }
         await Favor.updateOne({_id:favorTransaction.favorId},{status: JESTA_STATUS.UNAVAILABLE}).exec();
         return "Success";
     }).catch(error => {
@@ -79,8 +90,19 @@ exports.executorNotifyDoneFavor = async (args, context) => {
         return new Error(ErrorId.Unauthorized);
     }
     favorTransaction["status"] = JESTA_TRANSACTION_STATUS.EXECUTOR_FINISH_JESTA;
-    return await favorTransaction.save().then((favorNotified) => {
+    return await favorTransaction.save().then(async (favorNotified) => {
         logger.debug("executor notify for doing jesta " + favorNotified._id);
+        let user = await User.findById(favorTransaction["favorOwnerId"]).exec();
+        if ( user["notificationToken"] !== null || user["notificationToken"] !== undefined){
+            logger.debug("sending notification to " + favorTransaction["favorOwnerId"])
+            const message = {
+                notification : {
+                    "title":"ביצעו את הג'סטה שלך",
+                    "body": "בוא בדוק מי זה ואשר זאת"
+                }
+            };
+            sentToOneUserMessage(user["notificationToken"],message,"high")
+        }
         return "Success";
     }).catch(error => {
         logger.debug("error in notify for doing jesta " + error);
