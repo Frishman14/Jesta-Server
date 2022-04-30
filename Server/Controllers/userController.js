@@ -33,6 +33,11 @@ exports.createOne = async (inputUser, isAdmin = false) => {
     })
 }
 
+exports.createToken = async (context, args) => {
+    await User.updateOne({_id: context.sub}, {$set: {notificationToken: args["token"]}}).exec();
+    return "success"
+}
+
 exports.deleteOne = async (userParams) => {
     if (!userParams._id && !userParams.email)
         return new Error("must get user _id or email");

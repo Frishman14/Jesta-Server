@@ -2,7 +2,7 @@ const User = require("../Models/User");
 const { isAuthenticated } = require("../middlewares/authorize")
 const { gql, AuthenticationError } = require("apollo-server-express");
 const { ROLES } = require('../Models/Common/consts');
-const { createOne, deleteOne, updateOne, connect, updateOneSecured, getThreeMostExecutors } = require("../Controllers/userController");
+const { createOne, deleteOne, updateOne, connect, updateOneSecured, getThreeMostExecutors, createToken } = require("../Controllers/userController");
 const { GraphQLUpload } = require('graphql-upload');
 
 exports.userTypeDefs = gql`
@@ -78,6 +78,7 @@ exports.userTypeDefs = gql`
                         updateUser(_id: String, email: String, updatedUser: UserUpdateInput, newImage: Upload): String
                         secureEmailPasswordAccountUpdate(_id: String, email: String, password: String, updateParams: UserSecureUpdate): String
                         connectUser(email: String!, password: String!): JWT
+                        addUserToken(token: String): String
                     }
                     `;
 
@@ -97,5 +98,6 @@ exports.userResolvers = {
         secureEmailPasswordAccountUpdate: (parent, args, context) => isAuthenticated(context) ? updateOneSecured(args) : new AuthenticationError("unauthorized"),
         connectUser: async (parent, args) => { return await connect(args) },
         signUpAdmin: (parent, args, context) => isAuthenticated(context, ROLES.ADMIN) ? createOne(args, true) : new AuthenticationError("unauthorized"),
+        addUserToken: (parent, args, context) => isAuthenticated(context, ROLES.ADMIN) ? createToken(context,sub) : new AuthenticationError("unauthorized"),
     }
 }

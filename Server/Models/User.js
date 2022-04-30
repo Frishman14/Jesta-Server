@@ -73,8 +73,10 @@ let userSchema = module.exports = mongoose.Schema({
     numberOfExecutedJesta: {
         type: Number,
         default: 0
+    },
+    notificationToken: {
+        type: String
     }
-
 });
 
 // hash password
