@@ -85,7 +85,7 @@ exports.ownerNotifyJestaHasBeenDone = async (args, context) => {
         await Favor.updateOne({_id:favorTransaction.favorId},{status: JESTA_STATUS.UNAVAILABLE}).exec();
         logger.debug("owner notify jesta has been done" + favorNotified._id);
         if(args["rate"] !== undefined){
-            await rateUser(favorTransaction["handledByUserId"], args["rate"])
+            await rateUserAndAddJesta(favorTransaction["handledByUserId"], args["rate"])
         }
         return "Success";
     }).catch(error => {
@@ -94,11 +94,14 @@ exports.ownerNotifyJestaHasBeenDone = async (args, context) => {
     })
 }
 
-const rateUser = async (userId, rating) => {
+const rateUserAndAddJesta = async (userId, rating) => {
     User.findOne(userId).then(user => {
-        let numOfRates = isNaN(user["number_of_rates"]) ? 1 : user["number_of_rates"];
+        let numOfRates = isNaN(user["number_of_rates"]) ? 1 : user["numberOfRates"];
         let currentRating = isNaN(user["rating"]) ? 5 : user["rating"];
         let newRating = ((numOfRates * currentRating) + rating)/(numOfRates+1);
-        User.updateOne({ "_id": userId },{$set : {"number_of_rates" : numOfRates + 1, rating: newRating }}).exec();
+
+        let numberOfExecutedJesta = user["numberOfExecutedJesta"]
+
+        User.updateOne({ "_id": userId },{$set : {"numberOfRates" : numOfRates + 1, "rating": newRating, "numberOfExecutedJesta": numberOfExecutedJesta + 1 }}).exec();
     })
 }

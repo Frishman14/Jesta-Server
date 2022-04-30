@@ -9,6 +9,7 @@ const { uploadFile, deleteFile } = require("./imageUtils")
 const { PROFILE_IMAGES_PATH, PROFILE_IMAGE } = require('../consts');
 const { ErrorId } = require('../utilities/error-id');
 const {AuthenticationError} = require("apollo-server-express");
+const FavorTransactions = require("../Models/favors/FavorTransactions");
 
 exports.createOne = async (inputUser, isAdmin = false) => {
     let userToCreate = inputUser.userParams;
@@ -115,6 +116,10 @@ exports.connect = async (userDetails) => {
         }
         return new Error(ErrorId.Invalid);
     });
+}
+
+exports.getThreeMostExecutors = async () => {
+    return await User.find().sort('-numberOfExecutedJesta').limit(3).exec();
 }
 
 const generateToken = async (id, role) => {

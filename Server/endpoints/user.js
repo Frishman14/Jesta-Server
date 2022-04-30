@@ -2,7 +2,7 @@ const User = require("../Models/User");
 const { isAuthenticated } = require("../middlewares/authorize")
 const { gql, AuthenticationError } = require("apollo-server-express");
 const { ROLES } = require('../Models/Common/consts');
-const { createOne, deleteOne, updateOne, connect, updateOneSecured } = require("../Controllers/userController");
+const { createOne, deleteOne, updateOne, connect, updateOneSecured, getThreeMostExecutors } = require("../Controllers/userController");
 const { GraphQLUpload } = require('graphql-upload');
 
 exports.userTypeDefs = gql`
@@ -31,6 +31,7 @@ exports.userTypeDefs = gql`
                         created_date: String
                         mostVolunteered: Boolean
                         rating: Float
+                        numberOfExecutedJesta: Int
                     }
                     input UserCreateInput {
                         firstName: String!
@@ -68,6 +69,7 @@ exports.userTypeDefs = gql`
                         getAllClients: [User]
                         getAllAdmins: [User]
                         getUser(_id: String, firstName: String, lastName: String, email: String): User
+                        getThreeMostExecutors: [User]
                     }
                     type Mutation {
                         signUpUser(userParams: UserCreateInput, file: Upload): JWT
@@ -86,6 +88,7 @@ exports.userResolvers = {
         getAllClients: async (parent, args, context) => { return isAuthenticated(context) ? await User.find({role: "client"}).exec(): new AuthenticationError("unauthorized"); },
         getAllAdmins: async (parent, args, context) => { return isAuthenticated(context, ROLES.ADMIN) ? await User.find({role: "admin"}).exec(): new AuthenticationError("unauthorized"); },
         getUser: async (parent, filterArgs, context) =>  { return isAuthenticated(context) ? await User.findOne(filterArgs).exec(): new AuthenticationError("unauthorized"); },
+        getThreeMostExecutors: async (parent, filterArgs, context) =>  { return isAuthenticated(context) ? await getThreeMostExecutors(filterArgs): new AuthenticationError("unauthorized"); },
     },
     Mutation: {
         signUpUser: (parent, args) => createOne(args),

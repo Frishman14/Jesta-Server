@@ -66,10 +66,15 @@ let userSchema = module.exports = mongoose.Schema({
         type: Number,
         default: 5
     },
-    number_of_rates: {
+    numberOfRates: {
         type: Number,
         default: 1
+    },
+    numberOfExecutedJesta: {
+        type: Number,
+        default: 0
     }
+
 });
 
 // hash password
