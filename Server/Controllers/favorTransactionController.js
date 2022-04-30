@@ -22,11 +22,10 @@ exports.createRequest = async (args, context) => {
     if (await FavorTransactions.exists({favorId: favorTransaction["favorId"],handledByUserId: favorTransaction["handledByUserId"],favorOwnerId: favorTransaction["favorOwnerId"]})){
         return new Error(ErrorId.Exists);
     }
-    return await favorTransaction.save().then((savedTransactionRequest) => {
+    return await favorTransaction.save().then( async (savedTransactionRequest) => {
         logger.debug("created new transaction request " + savedTransactionRequest._id);
-        let user = User.findById(favorTransaction["favorOwnerId"]).exec();
+        let user = await User.findById(favorTransaction["favorOwnerId"]).exec();
         if ( user["notificationToken"] !== null || user["notificationToken"] !== undefined){
-            logger.debug("sending notification")
             const registrationToken = user["notificationToken"];
             const message = {
                 data: {
