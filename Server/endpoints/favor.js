@@ -36,7 +36,8 @@ exports.favorTypeDefs = gql`
                         paymentAmount: Float
                         paymentMethod: String
                         dateToPublish: DateTime
-                        dateToUnpublished: DateTime
+                        dateToExecute: DateTime
+                        dateToFinishExecute: DateTime
                         dateLockedOut: DateTime
                         dateCreated: DateTime
                         dateLastModified: DateTime
@@ -54,7 +55,8 @@ exports.favorTypeDefs = gql`
                         paymentAmount: Float
                         paymentMethod: String
                         dateToPublish: DateTime
-                        dateToUnpublished: DateTime
+                        dateToExecute: DateTime
+                        dateToFinishExecute: DateTime
                         dateLockedOut: DateTime
                         dateCreated: DateTime
                         dateLastModified: DateTime
@@ -79,7 +81,8 @@ exports.favorTypeDefs = gql`
                         paymentAmount: Float
                         paymentMethod: PaymentType!
                         dateToPublish: DateTime
-                        dateToUnpublished: DateTime
+                        dateToExecute: DateTime
+                        dateToFinishExecute: DateTime
                         dateLockedOut: DateTime
                     }
                     input UpdateFavorInput {
@@ -91,7 +94,8 @@ exports.favorTypeDefs = gql`
                         paymentAmount: Float
                         paymentMethod: PaymentType
                         dateToPublish: DateTime
-                        dateToUnpublished: DateTime
+                        dateToExecute: DateTime
+                        dateToFinishExecute: DateTime
                         dateLockedOut: DateTime
                     }
                     type Query {
@@ -113,7 +117,7 @@ exports.favorResolvers = {
     Upload: GraphQLUpload,
     Query: {
         getFavor: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.findById(args.favorId).populate("ownerId categoryId").exec(): new AuthenticationError("unauthorized"); },
-        getFavorsByDate: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({dateToPublish: {$gte: startOfDay(new Date(args["startingDate"]) - 24*60*60*1000), $lt: endOfDay(new Date(args["limitDate"]))}}).exec(): new AuthenticationError("unauthorized"); }, //TODO: moveToController
+        getFavorsByDate: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({dateToPublish: {$gte: startOfDay(new Date(args["startingDate"]) - 24*60*60*1000)}, dateToExecute: {$lte: endOfDay(new Date(args["limitDate"]))}}).exec(): new AuthenticationError("unauthorized"); },
         getAllFavors: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({}).exec(): new AuthenticationError("unauthorized"); },
         gatAllFavorsByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({_id:args.favorId,status:args.status}).exec(): new AuthenticationError("unauthorized"); },
         getFavorsInRadios: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.findByRadios(args): new AuthenticationError("unauthorized"); }, // returns by sourceAddress

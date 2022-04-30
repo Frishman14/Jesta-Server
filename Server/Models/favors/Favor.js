@@ -39,9 +39,12 @@ let favorSchema = module.exports = mongoose.Schema({
         type: Date,
         default: Date.now()
     },
-    dateToUnpublished: {
+    dateToExecute: {
         type: Date,
-        default:  () => new Date(+new Date() + 31*24*60*60*1000)
+        default:   () => new Date(+new Date() + 31*24*60*60*1000)
+    },
+    dateToFinishExecute: {
+        type: Date
     },
     dateLockedOut: {
         type: Date
