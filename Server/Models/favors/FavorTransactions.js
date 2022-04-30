@@ -47,6 +47,9 @@ let favorTransactionSchema = module.exports = mongoose.Schema({
     canceledBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "user",
+    },
+    rating: {
+        type: Number
     }
 });
 

@@ -81,6 +81,9 @@ exports.ownerNotifyJestaHasBeenDone = async (args, context) => {
         return new Error(ErrorId.Unauthorized);
     }
     favorTransaction["status"] = JESTA_TRANSACTION_STATUS.JESTA_DONE;
+    if(args["rate"]) {
+        favorTransaction["rating"] = args["rate"]
+    }
     return await favorTransaction.save().then(async (favorNotified) => {
         await Favor.updateOne({_id:favorTransaction.favorId},{status: JESTA_STATUS.UNAVAILABLE}).exec();
         logger.debug("owner notify jesta has been done" + favorNotified._id);

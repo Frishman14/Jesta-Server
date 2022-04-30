@@ -26,6 +26,7 @@ exports.favorTransactionTypeDefs = gql`
                         dateCompleted: DateTime
                         dateCreated: DateTime
                         dateLastModified: DateTime
+                        rating: Float
                     }
                     type PopulatedFavorTransaction {
                         _id: String!
@@ -39,6 +40,7 @@ exports.favorTransactionTypeDefs = gql`
                         dateCompleted: DateTime
                         dateCreated: DateTime
                         dateLastModified: DateTime
+                        rating: Float
                     }
                     type Query {
                         getAllUserFavorTransactionByFavorId(favorId: String!): FavorTransaction
