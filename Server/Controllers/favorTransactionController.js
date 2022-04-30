@@ -6,6 +6,7 @@ const {ROLES, JESTA_TRANSACTION_STATUS, JESTA_STATUS} = require("../Models/Commo
 const {errorDuplicateKeyHandler} = require("./errorHandlers");
 const { ErrorId } = require("../utilities/error-id");
 const {AuthenticationError} = require("apollo-server-express");
+const {getMessaging} = require("firebase-admin/messaging");
 
 exports.createRequest = async (args, context) => {
     let favorTransaction = new FavorTransactions();
@@ -23,6 +24,25 @@ exports.createRequest = async (args, context) => {
     }
     return await favorTransaction.save().then((savedTransactionRequest) => {
         logger.debug("created new transaction request " + savedTransactionRequest._id);
+        let user = User.findById(favorTransaction["favorOwnerId"]).exec();
+        if ( user["notificationToken"] !== null || user["notificationToken"] !== undefined){
+            logger.debug("sending notification")
+            const registrationToken = user["notificationToken"];
+            const message = {
+                data: {
+                    message: "someone want to do you a Jesta"
+                },
+                token: registrationToken
+            };
+            getMessaging().send(message)
+                .then((response) => {
+                    // Response is a message ID string.
+                    console.log('Successfully sent message:', response);
+                })
+                .catch((error) => {
+                    console.log('Error sending message:', error);
+                });
+        }
         return "Success";
     }).catch(error => {
         logger.debug("error in creating new transaction " + error);

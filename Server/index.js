@@ -11,6 +11,7 @@ const { favorResolvers, favorTypeDefs} = require('./endpoints/favor');
 const { favorTransactionResolvers, favorTransactionTypeDefs} = require('./endpoints/favorTransaction');
 const { decodeToken } = require('./middlewares/authorize');
 const { graphqlUploadExpress } = require('graphql-upload');
+const admin = require("firebase-admin");
 const User = require("./Models/User");
 const serviceManager = require("./Services/servicesManager");
 const mostVolunteeredService = require("./Services/Gimification/getTheMostVolunteers");
@@ -41,6 +42,11 @@ async function startApolloServer(typeDefs, resolvers){
     const everyDayServices = [mostVolunteeredService]
 
     serviceManager.start(everyDayServices, every15minServices)
+
+    const serviceAccount = require("./jesta-b3688-firebase-adminsdk-zwo1c-4ebe639790.json");
+    admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+    });
 
     User.find({email: "admin@jesta.com"}, function(error, user){
         if(user.length === 0){
