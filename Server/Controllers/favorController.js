@@ -16,6 +16,9 @@ exports.createOne = async (args) => {
         })
     }
     let favor = new Favor(args["favor"])
+    if (args["favor"]["dateToPublish"] === null || args["favor"]["dateToPublish"] === undefined){
+        favor["dateToPublish"] = Date.now();
+    }
     return await favor.save().then((savedFavor) => {
         logger.debug("created new favor " + savedFavor._id);
         return savedFavor;

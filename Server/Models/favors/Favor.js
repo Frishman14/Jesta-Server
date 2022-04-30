@@ -41,7 +41,7 @@ let favorSchema = module.exports = mongoose.Schema({
     },
     dateToExecute: {
         type: Date,
-        default:   () => new Date(+new Date() + 31*24*60*60*1000)
+        default: () => new Date(+new Date() + 31*24*60*60*1000)
     },
     dateToFinishExecute: {
         type: Date
