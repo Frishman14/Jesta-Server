@@ -82,5 +82,5 @@ startApolloServer(typeDefs,resolvers ).catch(error => {
 
 // handle crash
 process.on('uncaughtException', err => {
-    console.error(err && err.stack)
+    logger.error(err && err.stack)
 });

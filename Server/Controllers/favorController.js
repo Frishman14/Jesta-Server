@@ -10,12 +10,14 @@ const startOfDay = require("date-fns/startOfDay");
 const endOfDay = require("date-fns/endOfDay");
 
 exports.createOne = async (args) => {
+    const imagesPath = []
     if(args["images"] && args["images"].length > 0) {
-        await args.images.forEach(image => {
-            uploadFile(image, FAVOR_IMAGES_PATH, FAVOR_IMAGE).then(result => args.favor.imagesPath = [result]);
-        })
+        for(let i = 0 ; i < args["images"].length; i++){
+            imagesPath.push(await uploadFile(args["images"][i], FAVOR_IMAGES_PATH, FAVOR_IMAGE));
+        }
     }
     let favor = new Favor(args["favor"])
+    favor["imagesPath"] = imagesPath;
     if (args["favor"]["dateToPublish"] === null || args["favor"]["dateToPublish"] === undefined){
         favor["dateToPublish"] = Date.now();
     }
