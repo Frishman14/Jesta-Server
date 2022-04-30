@@ -14,6 +14,22 @@ exports.validUser = {
             }
         }
 
+exports.validUser2 = {
+    firstName: "mock2",
+    lastName: "mocky2",
+    birthday: "Fri Feb 25 1995 16:22:50 GMT+0200 (Israel Standard Time)",
+    email: "test2@example.com",
+    hashedPassword: "aA123456",
+    address: {
+        country: "Israel",
+        city: "Givatayim",
+        street: "Ben-Zvi",
+        location: {
+            coordinates: [32.12356,32.12356]
+        }
+    }
+}
+
 exports.validCategory = {
     name: "categoryMock"
 }

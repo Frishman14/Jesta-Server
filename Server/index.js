@@ -76,4 +76,11 @@ async function startApolloServer(typeDefs, resolvers){
     await new Promise(resolve => httpServer.listen({ port: PORT}, resolve));
     logger.info(`Server ready at http://localhost:${PORT}${server.graphqlPath}`);
 }
-startApolloServer(typeDefs,resolvers ).catch(error => logger.error(error));
+startApolloServer(typeDefs,resolvers ).catch(error => {
+    logger.error(error);
+});
+
+// handle crash
+process.on('uncaughtException', err => {
+    console.error(err && err.stack)
+});
