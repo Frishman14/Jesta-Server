@@ -7,6 +7,7 @@ const {errorDuplicateKeyHandler} = require("./errorHandlers");
 const { ErrorId } = require("../utilities/error-id");
 const {AuthenticationError} = require("apollo-server-express");
 const {getMessaging} = require("firebase-admin/messaging");
+const {sentToOneUserMessage} = require("../Services/firebase-messaging");
 
 exports.createRequest = async (args, context) => {
     let favorTransaction = new FavorTransactions();
@@ -26,21 +27,14 @@ exports.createRequest = async (args, context) => {
         logger.debug("created new transaction request " + savedTransactionRequest._id);
         let user = await User.findById(favorTransaction["favorOwnerId"]).exec();
         if ( user["notificationToken"] !== null || user["notificationToken"] !== undefined){
-            const registrationToken = user["notificationToken"];
+            logger.debug("sending notification to " + favorTransaction["favorOwnerId"])
             const message = {
-                data: {
-                    message: "someone want to do you a Jesta"
-                },
-                token: registrationToken
+                notification : {
+                    "title":"מישהו שלח לך ג'סטה",
+                    "body": "בוא בדוק מי זה"
+                }
             };
-            getMessaging().send(message)
-                .then((response) => {
-                    // Response is a message ID string.
-                    console.log('Successfully sent message:', response);
-                })
-                .catch((error) => {
-                    console.log('Error sending message:', error);
-                });
+            sentToOneUserMessage(user["notificationToken"],message,"high")
         }
         return "Success";
     }).catch(error => {
