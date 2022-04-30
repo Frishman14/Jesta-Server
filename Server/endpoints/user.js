@@ -98,6 +98,6 @@ exports.userResolvers = {
         secureEmailPasswordAccountUpdate: (parent, args, context) => isAuthenticated(context) ? updateOneSecured(args) : new AuthenticationError("unauthorized"),
         connectUser: async (parent, args) => { return await connect(args) },
         signUpAdmin: (parent, args, context) => isAuthenticated(context, ROLES.ADMIN) ? createOne(args, true) : new AuthenticationError("unauthorized"),
-        addUserToken: (parent, args, context) => isAuthenticated(context, ROLES.ADMIN) ? createToken(context,args) : new AuthenticationError("unauthorized"),
+        addUserToken: (parent, args, context) => isAuthenticated(context) ? createToken(context,args) : new AuthenticationError("unauthorized"),
     }
 }
