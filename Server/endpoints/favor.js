@@ -5,6 +5,8 @@ const favorController = require("../Controllers/favorController");
 const { GraphQLUpload } = require('graphql-upload');
 const startOfDay = require("date-fns/startOfDay");
 const endOfDay = require("date-fns/endOfDay");
+const favorTransaction = require("../Models/favors/FavorTransactions");
+const {JESTA_TRANSACTION_STATUS} = require("../Models/Common/consts");
 
 exports.favorTypeDefs = gql`
                     scalar DateTime
@@ -106,6 +108,7 @@ exports.favorTypeDefs = gql`
                         getByRadiosAndDateAndOnlyAvailable(center: [Float], radius: Float, startingDate: DateTime, limitDate: DateTime, notIncludeMe: Boolean): [Favor]
                         gatAllFavorsByStatus(status: FavorStatus): [Favor]
                         getAllUserFavors: [Favor]
+                        getNumberOfRequestedJesta: Int
                     }
                     type Mutation {
                         createFavor(favor: FavorInput, images: [Upload]): Favor
@@ -124,6 +127,7 @@ exports.favorResolvers = {
         gatAllFavorsByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({_id:args.favorId,status:args.status}).exec(): new AuthenticationError("unauthorized"); },
         getFavorsInRadios: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.findByRadios(args): new AuthenticationError("unauthorized"); }, // returns by sourceAddress
         getByRadiosAndDateAndOnlyAvailable: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.findByRadiosAndDateAndOnlyAvailable(args, context): new AuthenticationError("unauthorized"); }, // returns by sourceAddress
+        getNumberOfRequestedJesta: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({ status : "Available" }).count().exec(): new AuthenticationError("unauthorized"); },
     },
     Mutation: {
         createFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.createOne(args): new AuthenticationError("unauthorized"); },

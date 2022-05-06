@@ -50,7 +50,6 @@ exports.favorTransactionTypeDefs = gql`
                         getAllUserFavorsWaitingForHandleTransaction: [FavorTransaction]
                         getAllOwnerFavorTransactionByStatus(status: FavorTransactionStatus, fromDate: DateTime): [PopulatedFavorTransaction]
                         getAllExecutorFavorTransactionByStatus(status: FavorTransactionStatus, fromDate: DateTime): [PopulatedFavorTransaction]
-                        getNumberOfRequestedJesta: Int
                         getNumberOfOnProgressJesta: Int
                         getNumberOfExecutedJesta: Int
                     }
@@ -72,7 +71,6 @@ exports.favorTransactionResolvers = {
         getAllExecutorFavorTransactionByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await getFavorTransactionByStatusAndHandlerOrExecutorAndDate(false,args,context) : new AuthenticationError("unauthorized"); },
         getAllUserFavorsRequestedTransaction: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({ handledByUserId : context.sub }).populate("handledByUserId favorId favorOwnerId").exec() : new AuthenticationError("unauthorized"); },
         getAllUserFavorsWaitingForHandleTransaction: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({ ownerId : context.sub, status : JESTA_TRANSACTION_STATUS.WAITING }).exec(): new AuthenticationError("unauthorized"); },
-        getNumberOfRequestedJesta: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({ status : JESTA_TRANSACTION_STATUS.PENDING_FOR_OWNER }).count().exec(): new AuthenticationError("unauthorized"); },
         getNumberOfOnProgressJesta: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({ status : JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME }).count().exec(): new AuthenticationError("unauthorized"); },
         getNumberOfExecutedJesta: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({ status : JESTA_TRANSACTION_STATUS.JESTA_DONE }).count().exec(): new AuthenticationError("unauthorized"); },
     },
