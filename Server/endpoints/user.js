@@ -70,6 +70,7 @@ exports.userTypeDefs = gql`
                         getAllAdmins: [User]
                         getUser(_id: String, firstName: String, lastName: String, email: String): User
                         getThreeMostExecutors: [User]
+                        getNumOfUsers: Int
                     }
                     type Mutation {
                         signUpUser(userParams: UserCreateInput, file: Upload): JWT
@@ -90,6 +91,7 @@ exports.userResolvers = {
         getAllAdmins: async (parent, args, context) => { return isAuthenticated(context, ROLES.ADMIN) ? await User.find({role: "admin"}).exec(): new AuthenticationError("unauthorized"); },
         getUser: async (parent, filterArgs, context) =>  { return isAuthenticated(context) ? await User.findOne(filterArgs).exec(): new AuthenticationError("unauthorized"); },
         getThreeMostExecutors: async (parent, filterArgs, context) =>  { return isAuthenticated(context) ? await getThreeMostExecutors(filterArgs): new AuthenticationError("unauthorized"); },
+        getNumOfUsers: async (parent, filterArgs, context) =>  { return isAuthenticated(context) ? await User.count().exec(): new AuthenticationError("unauthorized"); },
     },
     Mutation: {
         signUpUser: (parent, args) => createOne(args),
