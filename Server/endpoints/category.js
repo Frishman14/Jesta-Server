@@ -15,6 +15,7 @@ exports.categoryTypeDefs = gql`
                         getCategory(name: String, id: String): Category
                         getAllCategories: [Category]
                         getAllParentCategories: [Category]
+                        getAllSubCategoriesByParentCategory(parentCategoryId: String): [Category]
                     }
                     type Mutation {
                         createCategory(name: String, parentCategory: String): Category
@@ -29,6 +30,7 @@ exports.categoryResolvers = {
         getCategory:  async (parent, args, context) => { return isAuthenticated(context, ROLES.ADMIN) ? await categoryController.getOne(args): new AuthenticationError("unauthorized"); },
         getAllCategories: async (parent, args, context) => { return isAuthenticated(context) ? await Category.find({}).populate("parentCategory").exec(): new AuthenticationError("unauthorized"); },
         getAllParentCategories: async (parent, args, context) => { return isAuthenticated(context) ? await Category.find({"parentCategory":  null }).exec(): new AuthenticationError("unauthorized"); },
+        getAllSubCategoriesByParentCategory: async (parent, args, context) => { return isAuthenticated(context) ? await  Category.find({"parentCategory":  args["parentCategoryId"] }).populate("parentCategory").exec(): new AuthenticationError("unauthorized");}
     },
     Mutation: {
         // categories
