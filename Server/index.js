@@ -15,6 +15,7 @@ const admin = require("firebase-admin");
 const User = require("./Models/User");
 const serviceManager = require("./Services/servicesManager");
 const mostVolunteeredService = require("./Services/Gimification/getTheMostVolunteers");
+const notifyJestaExecutionSoon = require("./Services/notifications/notifyJestaExecutionSoon");
 
 const logger = require("./logger");
 
@@ -24,6 +25,7 @@ const typeDefs = [userTypeDefs, favorTypeDefs, categoryTypeDefs, performTypeDefs
 
 // app init
 async function startApolloServer(typeDefs, resolvers){
+    process.env.TZ = "Asia/Jerusalem"
     const app = express();
     app.use(express.static(__dirname + '/data/'))
     app.use(graphqlUploadExpress());
@@ -38,7 +40,7 @@ async function startApolloServer(typeDefs, resolvers){
         logger.info('db connected successfully');
 
     // app services section
-    const every15minServices = []
+    const every15minServices = [notifyJestaExecutionSoon]
     const everyDayServices = [mostVolunteeredService]
 
     serviceManager.start(everyDayServices, every15minServices)
