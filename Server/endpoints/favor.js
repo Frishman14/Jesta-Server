@@ -105,6 +105,7 @@ exports.favorTypeDefs = gql`
                         getFavorsInRadios(center: [Float], radius: Float): [Favor]
                         getByRadiosAndDateAndOnlyAvailable(center: [Float], radius: Float, startingDate: DateTime, limitDate: DateTime, notIncludeMe: Boolean): [Favor]
                         gatAllFavorsByStatus(status: FavorStatus): [Favor]
+                        getAllUserFavors: [Favor]
                     }
                     type Mutation {
                         createFavor(favor: FavorInput, images: [Upload]): Favor
@@ -119,6 +120,7 @@ exports.favorResolvers = {
         getFavor: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.findById(args.favorId).populate("ownerId categoryId").exec(): new AuthenticationError("unauthorized"); },
         getFavorsByDate: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({dateToPublish: {$gte: startOfDay(new Date(args["startingDate"]) - 24*60*60*1000)}, dateToExecute: {$lte: endOfDay(new Date(args["limitDate"]))}}).exec(): new AuthenticationError("unauthorized"); },
         getAllFavors: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({}).exec(): new AuthenticationError("unauthorized"); },
+        getAllUserFavors: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({ownerId: context.sub}).exec(): new AuthenticationError("unauthorized"); },
         gatAllFavorsByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await Favor.find({_id:args.favorId,status:args.status}).exec(): new AuthenticationError("unauthorized"); },
         getFavorsInRadios: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.findByRadios(args): new AuthenticationError("unauthorized"); }, // returns by sourceAddress
         getByRadiosAndDateAndOnlyAvailable: async (parent, args, context) => { return isAuthenticated(context) ? await favorController.findByRadiosAndDateAndOnlyAvailable(args, context): new AuthenticationError("unauthorized"); }, // returns by sourceAddress
