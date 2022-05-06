@@ -4,6 +4,7 @@ const favorTransactionController = require("../Controllers/favorTransactionContr
 const {JESTA_TRANSACTION_STATUS} = require("../Models/Common/consts");
 const favorTransaction = require("../Models/favors/FavorTransactions");
 const { GraphQLUpload } = require('graphql-upload');
+const {getFavorTransactionByStatusAndHandlerOrExecutorAndDate} = require("../Controllers/favorTransactionController");
 
 exports.favorTransactionTypeDefs = gql`
                     scalar DateTime
@@ -31,7 +32,7 @@ exports.favorTransactionTypeDefs = gql`
                     type PopulatedFavorTransaction {
                         _id: String!
                         status: String!
-                        favorId: Favor!
+                        favorId: Favor
                         favorOwnerId: User!
                         handledByUserId: User!
                         ownerComment: String
@@ -47,8 +48,8 @@ exports.favorTransactionTypeDefs = gql`
                         getAllFavorTransaction: [FavorTransaction]
                         getAllUserFavorsRequestedTransaction: [PopulatedFavorTransaction]
                         getAllUserFavorsWaitingForHandleTransaction: [FavorTransaction]
-                        getAllOwnerFavorTransactionByStatus(status: FavorTransactionStatus): [PopulatedFavorTransaction]
-                        getAllExecutorFavorTransactionByStatus(status: FavorTransactionStatus): [PopulatedFavorTransaction]
+                        getAllOwnerFavorTransactionByStatus(status: FavorTransactionStatus, fromDate: DateTime): [PopulatedFavorTransaction]
+                        getAllExecutorFavorTransactionByStatus(status: FavorTransactionStatus, fromDate: DateTime): [PopulatedFavorTransaction]
                     }
                     type Mutation {
                         createFavorTransactionRequest(favorId: String!, comment: String): String
@@ -64,8 +65,8 @@ exports.favorTransactionResolvers = {
     Query: {
         getAllUserFavorTransactionByFavorId: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.findOne({"favorId": args.favorId, "handledByUserId": context.sub}).exec() : new AuthenticationError("unauthorized"); },
         getAllFavorTransaction: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({}).exec() : new AuthenticationError("unauthorized"); },
-        getAllOwnerFavorTransactionByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({status: JESTA_TRANSACTION_STATUS[args.status], favorOwnerId: context.sub}).populate("favorOwnerId favorId handledByUserId").exec() : new AuthenticationError("unauthorized"); },
-        getAllExecutorFavorTransactionByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({status: JESTA_TRANSACTION_STATUS[args.status], handledByUserId: context.sub}).populate("favorOwnerId favorId handledByUserId").exec() : new AuthenticationError("unauthorized"); },
+        getAllOwnerFavorTransactionByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await getFavorTransactionByStatusAndHandlerOrExecutorAndDate(true,args,context) : new AuthenticationError("unauthorized"); },
+        getAllExecutorFavorTransactionByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await getFavorTransactionByStatusAndHandlerOrExecutorAndDate(false,args,context) : new AuthenticationError("unauthorized"); },
         getAllUserFavorsRequestedTransaction: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({ handledByUserId : context.sub }).populate("handledByUserId favorId favorOwnerId").exec() : new AuthenticationError("unauthorized"); },
         getAllUserFavorsWaitingForHandleTransaction: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({ ownerId : context.sub, status : JESTA_TRANSACTION_STATUS.WAITING}).exec(): new AuthenticationError("unauthorized"); },
     },

@@ -8,6 +8,7 @@ const { ErrorId } = require("../utilities/error-id");
 const {AuthenticationError} = require("apollo-server-express");
 const {getMessaging} = require("firebase-admin/messaging");
 const {sentToOneUserMessage} = require("../Services/firebase-messaging");
+const favorTransaction = require("../Models/favors/FavorTransactions");
 
 exports.createRequest = async (args, context) => {
     let favorTransaction = new FavorTransactions();
@@ -82,6 +83,19 @@ exports.handleRequestCanceled = async (args, context) => {
         logger.debug("error in transaction request canceled " + error);
         return new Error(errorDuplicateKeyHandler(error))
     })
+}
+
+exports.getFavorTransactionByStatusAndHandlerOrExecutorAndDate = async (byOwnerId,args, context) => {
+    const executorFilter = byOwnerId === true ? "favorOwnerId" : "handledByUserId";
+    let query = {
+        status: JESTA_TRANSACTION_STATUS[args.status]
+    }
+    query[executorFilter] = context.sub;
+    if (args["fromDate"] !== null && args["fromDate"] !== undefined){
+        console.log(args["fromDate"])
+        query["dateLastModified"] = {$gte: args["fromDate"]};
+    }
+    return await favorTransaction.find(query).populate("favorOwnerId favorId handledByUserId").sort({"dateCompleted": -1}).exec()
 }
 
 exports.executorNotifyDoneFavor = async (args, context) => {
