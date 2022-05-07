@@ -13,7 +13,13 @@ exports.run = async () => {
         if (favor["ownerId"]["notificationToken"] === undefined || favor["ownerId"]["notificationToken"] === null) {
             logger.debug(favor["ownerId"]["email"] + " doesnt have token");
         } else {
-            sentToOneUserMessage(favor["ownerId"]["notificationToken"], "מזכירים לך שבקרוב יש לך ג'סטה לבצע!", "high")
+            const message = {
+                notification : {
+                    "title":"מזכירים לך שבקרוב יש לך ג'סטה לבצע!",
+                    "body": "בוא בדוק איזה"
+                }
+            }
+            sentToOneUserMessage(favor["ownerId"]["notificationToken"], message, "high")
         }
     })
     logger.debug("notify service: notifyJestaExecutionSoon is done")

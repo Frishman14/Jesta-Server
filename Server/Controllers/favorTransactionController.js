@@ -22,26 +22,32 @@ exports.createRequest = async (args, context) => {
     favorTransaction["favorOwnerId"] = favor["ownerId"];
     favorTransaction["status"] = JESTA_TRANSACTION_STATUS.PENDING_FOR_OWNER;
     if (await FavorTransactions.exists({favorId: favorTransaction["favorId"],handledByUserId: favorTransaction["handledByUserId"],favorOwnerId: favorTransaction["favorOwnerId"]})){
-        return new Error(ErrorId.Exists);
+        await FavorTransactions.updateOne({favorId: favorTransaction["favorId"],handledByUserId: favorTransaction["handledByUserId"],favorOwnerId: favorTransaction["favorOwnerId"]}, {status: JESTA_TRANSACTION_STATUS.PENDING_FOR_OWNER}).exec();
+        await sendCreateMessage(favorTransaction["favorOwnerId"])
+        return "Success"
     }
     return await favorTransaction.save().then( async (savedTransactionRequest) => {
         logger.debug("created new transaction request " + savedTransactionRequest._id);
-        let user = await User.findById(favorTransaction["favorOwnerId"]).exec();
-        if ( user["notificationToken"] !== null || user["notificationToken"] !== undefined){
-            logger.debug("sending notification to " + favorTransaction["favorOwnerId"])
-            const message = {
-                notification : {
-                    "title":"מישהו שלח לך ג'סטה",
-                    "body": "בוא בדוק מי זה"
-                }
-            };
-            sentToOneUserMessage(user["notificationToken"],message,"high")
-        }
+        await sendCreateMessage(favorTransaction["favorOwnerId"])
         return "Success";
     }).catch(error => {
         logger.debug("error in creating new transaction " + error);
         return new Error(errorDuplicateKeyHandler(error))
     })
+}
+
+const sendCreateMessage = async (favorOwnerId) => {
+    let user = await User.findById(favorOwnerId).exec();
+    if ( user["notificationToken"] !== null || user["notificationToken"] !== undefined){
+        logger.debug("sending notification to " + favorTransaction["favorOwnerId"])
+        const message = {
+            notification : {
+                "title":"מישהו שלח לך ג'סטה",
+                "body": "בוא בדוק מי זה"
+            }
+        };
+        sentToOneUserMessage(user["notificationToken"],message,"high")
+    }
 }
 
 exports.handleRequestApproved = async (args, context) => {
