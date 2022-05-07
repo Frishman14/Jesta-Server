@@ -52,6 +52,7 @@ exports.favorTransactionTypeDefs = gql`
                         getAllExecutorFavorTransactionByStatus(status: FavorTransactionStatus, fromDate: DateTime): [PopulatedFavorTransaction]
                         getNumberOfOnProgressJesta: Int
                         getNumberOfExecutedJesta: Int
+                        getTransactionById(id: String): PopulatedFavorTransaction
                     }
                     type Mutation {
                         createFavorTransactionRequest(favorId: String!, comment: String): String
@@ -73,6 +74,7 @@ exports.favorTransactionResolvers = {
         getAllUserFavorsWaitingForHandleTransaction: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({ ownerId : context.sub, status : JESTA_TRANSACTION_STATUS.WAITING }).exec(): new AuthenticationError("unauthorized"); },
         getNumberOfOnProgressJesta: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({ status : JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME }).count().exec(): new AuthenticationError("unauthorized"); },
         getNumberOfExecutedJesta: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({ status : JESTA_TRANSACTION_STATUS.JESTA_DONE }).count().exec(): new AuthenticationError("unauthorized"); },
+        getTransactionById: async (parent, args, context) => {return isAuthenticated(context) ? await favorTransaction.findById(args["id"]).populate("handledByUserId favorId favorOwnerId").exec(): new AuthenticationError("unauthorized");}
     },
     Mutation: {
         createFavorTransactionRequest: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.createRequest(args, context): new AuthenticationError("unauthorized"); },
