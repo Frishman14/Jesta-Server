@@ -76,6 +76,9 @@ let userSchema = module.exports = mongoose.Schema({
     },
     notificationToken: {
         type: String
+    },
+    description: {
+        type: String
     }
 });
 

@@ -32,6 +32,7 @@ exports.userTypeDefs = gql`
                         mostVolunteered: Boolean
                         rating: Float
                         numberOfExecutedJesta: Int
+                        description: String
                     }
                     input UserCreateInput {
                         firstName: String!
@@ -43,6 +44,7 @@ exports.userTypeDefs = gql`
                         fullAddress: String
                         longitude: Float
                         altitude: Float
+                        description: String
                     }
                     input UserSecureUpdate {
                         email: String
@@ -59,6 +61,7 @@ exports.userTypeDefs = gql`
                         fullAddress: String
                         longitude: Float
                         altitude: Float
+                        description: String
                     }
                     type JWT {
                         token: String,
