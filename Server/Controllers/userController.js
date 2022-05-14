@@ -5,6 +5,7 @@ const { errorDuplicateKeyHandler } = require('./errorHandlers');
 const logger = require("../logger");
 const { ROLES } = require("../Models/Common/consts")
 const User = require("../Models/User");
+const Graph = require("../Models/favors/UserGraph");
 const { uploadFile, deleteFile } = require("./imageUtils")
 const { PROFILE_IMAGES_PATH, PROFILE_IMAGE } = require('../consts');
 const { ErrorId } = require('../utilities/error-id');
@@ -16,11 +17,12 @@ exports.createOne = async (inputUser, isAdmin = false) => {
     if(isAdmin){
         user.role = ROLES.ADMIN;
     }
-    return await user.save().then(async savedUser => {
+    return await user.save().then(async _ => {
         if(inputUser.file){
             const uploadImage = uploadFile(inputUser.file, PROFILE_IMAGES_PATH, PROFILE_IMAGE);
             await uploadImage.then(result => inputUser.userParams.imagePath = result);
         }
+        updateUserCreatedGraph()
         logger.info("added a new user " + userToCreate.email)
         userToCreate.password = userToCreate.hashedPassword;
         return this.connect(userToCreate);
@@ -29,6 +31,21 @@ exports.createOne = async (inputUser, isAdmin = false) => {
 
         let handledError = errorDuplicateKeyHandler(error)
         return new Error(handledError)
+    })
+}
+
+const updateUserCreatedGraph = () => {
+    Graph.exists({creationDate: new Date().toLocaleDateString()}, async function(err, exists) {
+        if (err) {
+            logger.error("problem with update user graph", err);
+        }
+        if (exists) {
+            Graph.findOne({creationDate: new Date().toLocaleDateString()}, async function(_, doc) {
+                await Graph.updateOne({_id: doc._id},{numberOfCreated: doc.numberOfCreated + 1}).exec();
+            })
+        } else {
+            await Graph.create({creationDate: new Date().toLocaleDateString(), numberOfCreated: 1});
+        }
     })
 }
 
@@ -57,7 +74,7 @@ exports.updateOneSecured = async (params) => {
     var connectionResult = await this.connect(params)
     if (connectionResult["token"] !== undefined){
         if(params["updateParams"]["accountDelete"]){
-            return User.remove({_id: params._id}).then(u => "success").catch(err => {
+            return User.remove({_id: params._id}).then(_ => "success").catch(err => {
                 logger.error("failed to delete user " + err);
                 return "failed";
             });
@@ -73,7 +90,7 @@ exports.updateOneSecured = async (params) => {
             parametersToUpdate["password"] = params["updateParams"]["password"];
         }
         var filter = params._id !== undefined ? { '_id' : params._id } : {'email' : params.email }
-        return User.findOneAndUpdate(filter,{ $set: parametersToUpdate }, {runValidators: true}).then(u => "success").catch(err => {
+        return User.findOneAndUpdate(filter,{ $set: parametersToUpdate }, {runValidators: true}).then(_ => "success").catch(err => {
             logger.error("failed to update user " + err);
             return "failed";
         });

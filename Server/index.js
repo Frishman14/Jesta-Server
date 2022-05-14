@@ -1,15 +1,15 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const { ApolloServer } = require('apollo-server-express');
-const { ApolloServerPluginDrainHttpServer } = require("apollo-server-core")
+const {ApolloServer} = require('apollo-server-express');
+const {ApolloServerPluginDrainHttpServer} = require("apollo-server-core")
 const http = require("http");
-const { userTypeDefs, userResolvers } = require('./endpoints/user');
-const { performTypeDefs, performResolvers } = require('./endpoints/perform');
-const { categoryTypeDefs, categoryResolvers } = require('./endpoints/category');
-const { favorResolvers, favorTypeDefs} = require('./endpoints/favor');
-const { favorTransactionResolvers, favorTransactionTypeDefs} = require('./endpoints/favorTransaction');
-const { decodeToken } = require('./middlewares/authorize');
-const { graphqlUploadExpress } = require('graphql-upload');
+const {userTypeDefs, userResolvers} = require('./endpoints/user');
+const {performTypeDefs, performResolvers} = require('./endpoints/perform');
+const {categoryTypeDefs, categoryResolvers} = require('./endpoints/category');
+const {favorResolvers, favorTypeDefs} = require('./endpoints/favor');
+const {favorTransactionResolvers, favorTransactionTypeDefs} = require('./endpoints/favorTransaction');
+const {decodeToken} = require('./middlewares/authorize');
+const {graphqlUploadExpress} = require('graphql-upload');
 const admin = require("firebase-admin");
 const serviceManager = require("./Services/servicesManager");
 const mostVolunteeredService = require("./Services/Gimification/getTheMostVolunteers");
@@ -18,27 +18,27 @@ require('dotenv').config({path: "/home/cs122/IdeaProjects/Jesta-Server/.env"});
 
 const logger = require("./logger");
 const {initAdminUser, initCategories} = require("./utilities/initDb");
+const {dashboardResolvers, dashboardTypeDefs} = require("./endpoints/dashboard");
 
 const PORT = process.env.PORT || 4111;
 const MONGO_ADDRESS = process.env.MONGO_ADDRESS || 'mongodb://127.0.0.1/Jesta';
-const ADDRESS = MONGO_ADDRESS === 'mongodb://127.0.0.1/Jesta' ?  "127.0.0.1" : "193.106.55.114";
-const resolvers = [userResolvers, favorResolvers, categoryResolvers, performResolvers, favorTransactionResolvers]
-const typeDefs = [userTypeDefs, favorTypeDefs, categoryTypeDefs, performTypeDefs, favorTransactionTypeDefs]
+const ADDRESS = MONGO_ADDRESS === 'mongodb://127.0.0.1/Jesta' ? "127.0.0.1" : "193.106.55.114";
+const resolvers = [userResolvers, favorResolvers, categoryResolvers, performResolvers, favorTransactionResolvers, dashboardResolvers]
+const typeDefs = [userTypeDefs, favorTypeDefs, categoryTypeDefs, performTypeDefs, favorTransactionTypeDefs, dashboardTypeDefs]
 
 // app init
-async function startApolloServer(typeDefs, resolvers){
+async function startApolloServer(typeDefs, resolvers) {
     process.env.TZ = "Asia/Jerusalem"
     const app = express();
     app.use(express.static(__dirname + '/data/'))
     app.use(graphqlUploadExpress());
     const httpServer = http.createServer(app);
 
-    mongoose.connect(MONGO_ADDRESS, { useNewUrlParser: true});
-    if(!mongoose.connection){
+    mongoose.connect(MONGO_ADDRESS, {useNewUrlParser: true});
+    if (!mongoose.connection) {
         logger.error('db error');
         new Error("db problem")
-    }
-    else
+    } else
         logger.info('db connected successfully');
 
     // app services section
@@ -60,7 +60,7 @@ async function startApolloServer(typeDefs, resolvers){
         typeDefs,
         resolvers,
         plugins: [ApolloServerPluginDrainHttpServer({httpServer})],
-        context: ({ req }) => {
+        context: ({req}) => {
             return decodeToken(req);
         }
     });
@@ -70,10 +70,11 @@ async function startApolloServer(typeDefs, resolvers){
         path: '/graphql/'
     });
 
-    await new Promise(resolve => httpServer.listen({ port: PORT}, resolve));
+    await new Promise(resolve => httpServer.listen({port: PORT}, resolve));
     logger.info(`Server ready at http://${ADDRESS}:${PORT}${server.graphqlPath}`);
 }
-startApolloServer(typeDefs,resolvers ).catch(error => {
+
+startApolloServer(typeDefs, resolvers).catch(error => {
     logger.error(error);
 });
 
