@@ -44,7 +44,8 @@ exports.favorTransactionTypeDefs = gql`
                         rating: Float
                     }
                     type Query {
-                        getAllUserFavorTransactionByFavorId(favorId: String!): FavorTransaction
+                        getAllFavorTransactionByFavorIdWhenOwner(favorId: String!): [PopulatedFavorTransaction]
+                        getAllUserFavorTransactionByFavorId(favorId: String!): [PopulatedFavorTransaction]
                         getAllFavorTransaction: [FavorTransaction]
                         getAllUserFavorsRequestedTransaction: [PopulatedFavorTransaction]
                         getAllUserFavorsWaitingForHandleTransaction: [FavorTransaction]
@@ -66,8 +67,8 @@ exports.favorTransactionTypeDefs = gql`
 exports.favorTransactionResolvers = {
     Upload: GraphQLUpload,
     Query: {
-        getAllFavorTransactionByFavorIdWhenOwner: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.findOne({"favorId": args.favorId, "favorOwnerId": context.sub}).exec() : new AuthenticationError("unauthorized"); },
-        getAllUserFavorTransactionByFavorId: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.findOne({"favorId": args.favorId, "handledByUserId": context.sub}).exec() : new AuthenticationError("unauthorized"); },
+        getAllFavorTransactionByFavorIdWhenOwner: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({"favorId": args.favorId, "favorOwnerId": context.sub}).populate("handledByUserId favorId favorOwnerId").exec() : new AuthenticationError("unauthorized"); },
+        getAllUserFavorTransactionByFavorId: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({"favorId": args.favorId, "handledByUserId": context.sub}).populate("handledByUserId favorId favorOwnerId").exec() : new AuthenticationError("unauthorized"); },
         getAllFavorTransaction: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({}).exec() : new AuthenticationError("unauthorized"); },
         getAllOwnerFavorTransactionByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await getFavorTransactionByStatusAndHandlerOrExecutorAndDate(true,args,context) : new AuthenticationError("unauthorized"); },
         getAllExecutorFavorTransactionByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await getFavorTransactionByStatusAndHandlerOrExecutorAndDate(false,args,context) : new AuthenticationError("unauthorized"); },
