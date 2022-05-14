@@ -6,7 +6,6 @@ const {ROLES, JESTA_TRANSACTION_STATUS, JESTA_STATUS} = require("../Models/Commo
 const {errorDuplicateKeyHandler} = require("./errorHandlers");
 const { ErrorId } = require("../utilities/error-id");
 const {AuthenticationError} = require("apollo-server-express");
-const {getMessaging} = require("firebase-admin/messaging");
 const {sentToOneUserMessage} = require("../Services/firebase-messaging");
 const favorTransaction = require("../Models/favors/FavorTransactions");
 
@@ -50,7 +49,7 @@ const sendCreateMessage = async (favorOwnerId) => {
     }
 }
 
-exports.handleRequestApproved = async (args, context) => {
+exports.handleRequestApproved = async (args, _) => {
     let favorTransaction = await FavorTransactions.findById(args["favorTransactionId"]).exec();
     favorTransaction.status = JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME;
     return await favorTransaction.save().then(async (savedTransactionRequest) => {

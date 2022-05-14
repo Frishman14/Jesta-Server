@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const constants = require("../Common/consts");
 const validation = require("../Common/Validations");
-const bcrypt = require("bcrypt");
 
 let favorTransactionSchema = module.exports = mongoose.Schema({
     favorId: {

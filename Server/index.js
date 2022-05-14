@@ -20,42 +20,51 @@ const logger = require("./logger");
 const {initAdminUser, initCategories} = require("./utilities/initDb");
 const {dashboardResolvers, dashboardTypeDefs} = require("./endpoints/dashboard");
 
+// region consts
+process.env.TZ = "Asia/Jerusalem"
 const PORT = process.env.PORT || 4111;
 const MONGO_ADDRESS = process.env.MONGO_ADDRESS || 'mongodb://127.0.0.1/Jesta';
 const ADDRESS = MONGO_ADDRESS === 'mongodb://127.0.0.1/Jesta' ? "127.0.0.1" : "193.106.55.114";
 const resolvers = [userResolvers, favorResolvers, categoryResolvers, performResolvers, favorTransactionResolvers, dashboardResolvers]
 const typeDefs = [userTypeDefs, favorTypeDefs, categoryTypeDefs, performTypeDefs, favorTransactionTypeDefs, dashboardTypeDefs]
+// endregion
 
-// app init
+// region app init
 async function startApolloServer(typeDefs, resolvers) {
-    process.env.TZ = "Asia/Jerusalem"
+    // region init express
     const app = express();
     app.use(express.static(__dirname + '/data/'))
     app.use(graphqlUploadExpress());
     const httpServer = http.createServer(app);
+    // endregion
 
-    mongoose.connect(MONGO_ADDRESS, {useNewUrlParser: true});
+    // region mongo connection
+    await mongoose.connect(MONGO_ADDRESS, {useNewUrlParser: true});
     if (!mongoose.connection) {
         logger.error('db error');
         new Error("db problem")
     } else
         logger.info('db connected successfully');
+    // region init db data
+    initAdminUser();
+    initCategories()
+    // endregion
+    // endregion
 
-    // app services section
+    // region init app services
     const every15minServices = [notifyJestaExecutionSoon]
     const everyDayServices = [mostVolunteeredService]
-
     serviceManager.start(everyDayServices, every15minServices)
+    // endregion
 
+    // region init firebase
     const serviceAccount = require("./jesta-b3688-firebase-adminsdk-zwo1c-4ebe639790.json");
     admin.initializeApp({
         credential: admin.credential.cert(serviceAccount)
     });
+    // endregion
 
-    // init db data
-    initAdminUser();
-    initCategories()
-
+    // region init apollo server
     const server = new ApolloServer({
         typeDefs,
         resolvers,
@@ -72,13 +81,16 @@ async function startApolloServer(typeDefs, resolvers) {
 
     await new Promise(resolve => httpServer.listen({port: PORT}, resolve));
     logger.info(`Server ready at http://${ADDRESS}:${PORT}${server.graphqlPath}`);
+    // endregion
 }
 
 startApolloServer(typeDefs, resolvers).catch(error => {
     logger.error(error);
 });
+// endregion
 
-// handle crash
+// region handle crash
 process.on('uncaughtException', err => {
     logger.error(err && err.stack)
 });
+// endregion

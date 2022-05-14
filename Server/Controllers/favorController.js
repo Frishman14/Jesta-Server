@@ -8,6 +8,7 @@ const { uploadFile, deleteFile } = require("./imageUtils");
 const { ErrorId } = require("../utilities/error-id");
 const startOfDay = require("date-fns/startOfDay");
 const endOfDay = require("date-fns/endOfDay");
+const Graph = require("../Models/favors/JestaGraph");
 
 exports.createOne = async (args) => {
     const imagesPath = []
@@ -22,6 +23,7 @@ exports.createOne = async (args) => {
         favor["dateToPublish"] = Date.now();
     }
     return await favor.save().then((savedFavor) => {
+        updateJestaCreatedGraph();
         logger.debug("created new favor " + savedFavor._id);
         return savedFavor;
     }).catch(error => {
@@ -108,4 +110,19 @@ async function validateDetails(params, token){
     let userDetails = token
     let favor = await Favor.findOne({_id: params.favorId}).exec()
     return userDetails.role === ROLES.ADMIN || favor.ownerId.toString() === userDetails.sub;
+}
+
+const updateJestaCreatedGraph = () => {
+    Graph.exists({creationDate: new Date().toLocaleDateString()}, async function(err, exists) {
+        if (err) {
+            logger.error("problem with update jesta graph", err);
+        }
+        if (exists) {
+            Graph.findOne({creationDate: new Date().toLocaleDateString()}, async function(_, doc) {
+                await Graph.updateOne({_id: doc._id},{numberOfCreated: doc.numberOfCreated + 1}).exec();
+            })
+        } else {
+            await Graph.create({creationDate: new Date().toLocaleDateString(), numberOfCreated: 1});
+        }
+    })
 }

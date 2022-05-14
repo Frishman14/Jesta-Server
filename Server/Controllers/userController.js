@@ -5,7 +5,7 @@ const { errorDuplicateKeyHandler } = require('./errorHandlers');
 const logger = require("../logger");
 const { ROLES } = require("../Models/Common/consts")
 const User = require("../Models/User");
-const Graph = require("../Models/favors/UserGraph");
+const Graph = require("../Models/UserGraph");
 const { uploadFile, deleteFile } = require("./imageUtils")
 const { PROFILE_IMAGES_PATH, PROFILE_IMAGE } = require('../consts');
 const { ErrorId } = require('../utilities/error-id');
@@ -71,7 +71,7 @@ exports.deleteOne = async (userParams) => {
 };
 
 exports.updateOneSecured = async (params) => {
-    var connectionResult = await this.connect(params)
+    const connectionResult = await this.connect(params);
     if (connectionResult["token"] !== undefined){
         if(params["updateParams"]["accountDelete"]){
             return User.remove({_id: params._id}).then(_ => "success").catch(err => {
@@ -89,7 +89,7 @@ exports.updateOneSecured = async (params) => {
         if(params["updateParams"]["password"] !== undefined){
             parametersToUpdate["password"] = params["updateParams"]["password"];
         }
-        var filter = params._id !== undefined ? { '_id' : params._id } : {'email' : params.email }
+        const filter = params._id !== undefined ? {'_id': params._id} : {'email': params.email};
         return User.findOneAndUpdate(filter,{ $set: parametersToUpdate }, {runValidators: true}).then(_ => "success").catch(err => {
             logger.error("failed to update user " + err);
             return "failed";
