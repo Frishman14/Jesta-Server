@@ -1,6 +1,5 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const { createOne } = require("./Controllers/userController");
 const { ApolloServer } = require('apollo-server-express');
 const { ApolloServerPluginDrainHttpServer } = require("apollo-server-core")
 const http = require("http");
@@ -12,13 +11,13 @@ const { favorTransactionResolvers, favorTransactionTypeDefs} = require('./endpoi
 const { decodeToken } = require('./middlewares/authorize');
 const { graphqlUploadExpress } = require('graphql-upload');
 const admin = require("firebase-admin");
-const User = require("./Models/User");
 const serviceManager = require("./Services/servicesManager");
 const mostVolunteeredService = require("./Services/Gimification/getTheMostVolunteers");
 const notifyJestaExecutionSoon = require("./Services/notifications/notifyJestaExecutionSoon");
 require('dotenv').config({path: "/home/cs122/IdeaProjects/Jesta-Server/.env"});
 
 const logger = require("./logger");
+const {initAdminUser, initCategories} = require("./utilities/initDb");
 
 const PORT = process.env.PORT || 4111;
 const MONGO_ADDRESS = process.env.MONGO_ADDRESS || 'mongodb://127.0.0.1/Jesta';
@@ -53,22 +52,9 @@ async function startApolloServer(typeDefs, resolvers){
         credential: admin.credential.cert(serviceAccount)
     });
 
-    User.find({email: "admin@jesta.com"}, function(error, user){
-        if(user.length === 0){
-            createOne({
-                userParams: {
-                    firstName: "admin",
-                    lastName: "admin",
-                    birthday: "1995-08-29T03:00:00",
-                    email: "admin@jesta.com",
-                    hashedPassword: "aA123456",
-                    fullAddress: "givatyim ben-tzvi 23",
-                    longitude: 32.12345,
-                    altitude: 32.12345
-                }
-            }, true)
-        }
-    });
+    // init db data
+    initAdminUser();
+    initCategories()
 
     const server = new ApolloServer({
         typeDefs,
