@@ -16,10 +16,13 @@ const User = require("./Models/User");
 const serviceManager = require("./Services/servicesManager");
 const mostVolunteeredService = require("./Services/Gimification/getTheMostVolunteers");
 const notifyJestaExecutionSoon = require("./Services/notifications/notifyJestaExecutionSoon");
+require('dotenv').config({path: "/home/cs122/IdeaProjects/Jesta-Server/.env"});
 
 const logger = require("./logger");
 
 const PORT = process.env.PORT || 4111;
+const MONGO_ADDRESS = process.env.MONGO_ADDRESS || 'mongodb://127.0.0.1/Jesta';
+const ADDRESS = MONGO_ADDRESS === 'mongodb://127.0.0.1/Jesta' ?  "127.0.0.1" : "193.106.55.114";
 const resolvers = [userResolvers, favorResolvers, categoryResolvers, performResolvers, favorTransactionResolvers]
 const typeDefs = [userTypeDefs, favorTypeDefs, categoryTypeDefs, performTypeDefs, favorTransactionTypeDefs]
 
@@ -31,7 +34,7 @@ async function startApolloServer(typeDefs, resolvers){
     app.use(graphqlUploadExpress());
     const httpServer = http.createServer(app);
 
-    mongoose.connect('mongodb://127.0.0.1/Jesta', { useNewUrlParser: true});
+    mongoose.connect(MONGO_ADDRESS, { useNewUrlParser: true});
     if(!mongoose.connection){
         logger.error('db error');
         new Error("db problem")
@@ -82,7 +85,7 @@ async function startApolloServer(typeDefs, resolvers){
     });
 
     await new Promise(resolve => httpServer.listen({ port: PORT}, resolve));
-    logger.info(`Server ready at http://localhost:${PORT}${server.graphqlPath}`);
+    logger.info(`Server ready at http://${ADDRESS}:${PORT}${server.graphqlPath}`);
 }
 startApolloServer(typeDefs,resolvers ).catch(error => {
     logger.error(error);
