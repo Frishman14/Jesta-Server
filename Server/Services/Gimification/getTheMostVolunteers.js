@@ -7,8 +7,10 @@ const User = require("../../Models/User");
 const logger = require("../../logger");
 
 exports.run = async () => {
-    logger.debug("flag the most volunteered service is running")
-    var aggregatedAnswer = await FavorTransactions.aggregate([
+    logger.debug("flag the 10% most volunteered service is running")
+    let numOfUsers = await User.find({}).count().exec();
+    let limit = Math.ceil(numOfUsers/10);
+    const aggregatedAnswer = await FavorTransactions.aggregate([
         {
             $lookup: {
                 "from": "favors",
@@ -18,7 +20,7 @@ exports.run = async () => {
             }
         },
         {
-            $match : { "status": "JESTA_DONE", "favors.paymentAmount": 0 }
+            $match: {"status": "JESTA_DONE", "favors.paymentAmount": 0}
         },
         {
             $group: {
@@ -30,15 +32,15 @@ exports.run = async () => {
             $sort: {"countHandled": -1}
         },
         {
-            $limit: 2
+            $limit: limit
         },
-    ],  { allowDiskUse : true })
-    logger.debug("the 2 most volunteered: " + util.inspect(aggregatedAnswer,false,null,true))
+    ], {allowDiskUse: true});
+    logger.debug("the " + limit + " most volunteered: " + util.inspect(aggregatedAnswer,false,null,true))
     Favor.updateMany({mostVolunteeredOwner: true}, {mostVolunteeredOwner: false},function (){});
     User.updateMany({mostVolunteered: true}, {mostVolunteered: false},function (){});
     aggregatedAnswer.forEach(volunteer => {
         Favor.updateMany({_id: volunteer._id}, {mostVolunteeredOwner: true},function (){});
         User.updateMany({_id: volunteer._id}, {mostVolunteered: true},function (){});
     })
-    logger.debug("flag the most volunteered service is done")
+    logger.debug("flag the 10% most volunteered service is done")
 }

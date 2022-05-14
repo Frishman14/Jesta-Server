@@ -5,7 +5,7 @@ exports.start = (everyDayServices, every15minServices) => {
     everyDayServices.forEach(service => service.run())
     every15minServices.forEach(service => service.run())
 
-    cron.schedule('0 23 * * *', function(){
+    cron.schedule('0 20 * * *', function(){
         logger.info('running the everyDayServices');
         everyDayServices.forEach(service => service.run())
     });

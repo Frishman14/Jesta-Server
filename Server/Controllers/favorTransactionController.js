@@ -158,7 +158,60 @@ const rateUserAndAddJesta = async (userId, rating) => {
         let newRating = ((numOfRates * currentRating) + rating)/(numOfRates+1);
 
         let numberOfExecutedJesta = user["numberOfExecutedJesta"]
-
-        User.updateOne({ "_id": userId },{$set : {"numberOfRates" : numOfRates + 1, "rating": newRating, "numberOfExecutedJesta": numberOfExecutedJesta + 1 }}).exec();
+        if (rating > 3){
+            let user = User.updateOne({ "_id": userId },{$set : {"numberOfRates" : numOfRates + 1, "rating": newRating, "numberOfExecutedJesta": numberOfExecutedJesta + 1 }}).exec();
+            sendMedalNotification(user)
+        } else {
+            User.updateOne({ "_id": userId },{$set : {"numberOfRates" : numOfRates + 1, "rating": newRating}}).exec();
+            sendMedalNotification(user)
+        }
     })
+}
+
+const sendMedalNotification = async (user) => {
+    if (user["notificationToken"] === null || user["notificationToken"] === undefined) {
+        return;
+    }
+    let numOfExecuted = user["numberOfExecutedJesta"];
+    switch (numOfExecuted) {
+        case 10:
+            sentToOneUserMessage("notificationToken",message(10),"high")
+            await User.updateOne({"_id": userId}, {$set: {"medal": 10}}).exec();
+            break;
+        case 50:
+            sentToOneUserMessage("notificationToken",message(50),"high")
+            await User.updateOne({"_id": userId}, {$set: {"medal": 50}}).exec();
+            break;
+        case 100:
+            sentToOneUserMessage("notificationToken",message(100),"high")
+            await User.updateOne({"_id": userId}, {$set: {"medal": 100}}).exec();
+            break;
+        case 500:
+            sentToOneUserMessage("notificationToken",message(500),"high")
+            await User.updateOne({"_id": userId}, {$set: {"medal": 500}}).exec();
+            break;
+        case 1000:
+            sentToOneUserMessage("notificationToken",message(1000),"high")
+            await User.updateOne({"_id": userId}, {$set: {"medal": 1000}}).exec();
+            break;
+        default:
+            sentToOneUserMessage("notificationToken",message(1000),"high")
+    }
+}
+
+const message = (medal, isMedal) => {
+    if(isMedal) {
+        return {
+            notification : {
+                "title":"דירגו אותך וקיבלת מדליה עם " + medal,
+                "body": "בוא ותעשה עוד ג'סטות כדי לעלות בדירוג"
+            }
+        }
+    }
+    return {
+        notification : {
+            "title": "משתמש דירג אותך! בוא ובדוק את הדירוג החדש שלך",
+            "body": "בוא ותעשה עוד ג'סטות כדי לעלות בדירוג"
+        }
+    }
 }

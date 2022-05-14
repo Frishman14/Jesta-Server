@@ -33,6 +33,7 @@ exports.userTypeDefs = gql`
                         rating: Float
                         numberOfExecutedJesta: Int
                         description: String
+                        medal: Int
                     }
                     input UserCreateInput {
                         firstName: String!

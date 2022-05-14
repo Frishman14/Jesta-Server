@@ -79,6 +79,10 @@ let userSchema = module.exports = mongoose.Schema({
     },
     description: {
         type: String
+    },
+    medal: {
+        type: Number,
+        default: 0
     }
 });
 
