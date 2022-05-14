@@ -92,7 +92,6 @@ const createSubCategories = (category,doc) => {
                     logger.error("error in creating categories: " + err)
                 }
                 if (exist === null) {
-                    console.log({name: subCategory, parentCategory: doc._id})
                     await Category.create({name: subCategory, parentCategory: doc._id});
                 }
             }
