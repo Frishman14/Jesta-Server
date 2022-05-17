@@ -151,6 +151,22 @@ exports.ownerNotifyJestaHasBeenDone = async (args, context) => {
     })
 }
 
+exports.changeJestaTransactionToClosed = async (args, context) => {
+    let favorTransaction = await FavorTransactions.findById(args["favorTransactionId"]).exec();
+    if (context.sub !== favorTransaction["favorOwnerId"].toString() ||  context.role !== ROLES.ADMIN){
+        return new Error(ErrorId.Unauthorized);
+    }
+    favorTransaction["status"] = JESTA_TRANSACTION_STATUS.CLOSED;
+    return await favorTransaction.save().then(async () => {
+        await Favor.updateOne({_id:favorTransaction.favorId},{status: JESTA_STATUS.UNAVAILABLE}).exec();
+        logger.debug("owner notify jesta has been closed" + favorTransaction.favorId);
+        return "Success";
+    }).catch(error => {
+        logger.debug("owner failed to closed jesta " + error);
+        return new Error(errorDuplicateKeyHandler(error))
+    })
+}
+
 const rateUserAndAddJesta = async (userId, rating) => {
     User.findOne(userId).then(user => {
         let numOfRates = isNaN(user["number_of_rates"]) ? 1 : user["numberOfRates"];
