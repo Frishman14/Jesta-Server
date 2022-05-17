@@ -61,7 +61,7 @@ exports.favorTransactionTypeDefs = gql`
                         handleFavorTransactionRequest(favorTransactionId: String!, comment: String): String
                         cancelFavorTransaction(favorTransactionId: String!): String
                         executorNotifyDoneFavor(favorTransactionId: String!): String
-                        ownerNotifyJestaHasBeenDone(favorTransactionId: String!, rate: Int): String
+                        ownerNotifyJestaHasBeenDone(favorTransactionId: String!, rate: Int, handlerComment: String): String
                         userChangeJestaTransactionToClosed(favorTransactionId: String!): String
                     }
                     `;

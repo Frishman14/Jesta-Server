@@ -135,6 +135,7 @@ exports.ownerNotifyJestaHasBeenDone = async (args, context) => {
         return new Error(ErrorId.Unauthorized);
     }
     favorTransaction["status"] = JESTA_TRANSACTION_STATUS.JESTA_DONE;
+    favorTransaction["handlerComment"] = args["handlerComment"];
     if(args["rate"]) {
         favorTransaction["rating"] = args["rate"]
     }
