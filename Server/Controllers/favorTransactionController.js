@@ -37,7 +37,7 @@ exports.createRequest = async (args, context) => {
 
 const sendCreateMessage = async (favorOwnerId) => {
     let user = await User.findById(favorOwnerId).exec();
-    if ( user["notificationToken"] !== null || user["notificationToken"] !== undefined){
+    if ( user["notificationToken"] !== null && user["notificationToken"] !== undefined){
         logger.debug("sending notification to " + favorTransaction["favorOwnerId"])
         const message = {
             notification : {
@@ -53,9 +53,10 @@ exports.handleRequestApproved = async (args, _) => {
     let favorTransaction = await FavorTransactions.findById(args["favorTransactionId"]).exec();
     favorTransaction.status = JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME;
     return await favorTransaction.save().then(async (savedTransactionRequest) => {
+        await FavorTransactions.updateMany({ favorId: favorTransaction.favorId, "$ne" :{_id: args["favorTransactionId"]}}, {status: JESTA_TRANSACTION_STATUS.CANCELED}).exec()
         logger.debug("transaction approved " + savedTransactionRequest._id);
         let user = await User.findById(favorTransaction["handledByUserId"]).exec();
-        if ( user["notificationToken"] !== null || user["notificationToken"] !== undefined){
+        if ( user["notificationToken"] !== null && user["notificationToken"] !== undefined){
             logger.debug("sending notification to " + favorTransaction["handledByUserId"])
             const message = {
                 notification : {
@@ -97,7 +98,6 @@ exports.getFavorTransactionByStatusAndHandlerOrExecutorAndDate = async (byOwnerI
     }
     query[executorFilter] = context.sub;
     if (args["fromDate"] !== null && args["fromDate"] !== undefined){
-        console.log(args["fromDate"])
         query["dateLastModified"] = {$gte: args["fromDate"]};
     }
     return await favorTransaction.find(query).populate("favorOwnerId favorId handledByUserId").sort({"dateCompleted": -1}).exec()
@@ -112,7 +112,7 @@ exports.executorNotifyDoneFavor = async (args, context) => {
     return await favorTransaction.save().then(async (favorNotified) => {
         logger.debug("executor notify for doing jesta " + favorNotified._id);
         let user = await User.findById(favorTransaction["favorOwnerId"]).exec();
-        if ( user["notificationToken"] !== null || user["notificationToken"] !== undefined){
+        if ( user["notificationToken"] !== null && user["notificationToken"] !== undefined){
             logger.debug("sending notification to " + favorTransaction["favorOwnerId"])
             const message = {
                 notification : {
@@ -151,9 +151,9 @@ exports.ownerNotifyJestaHasBeenDone = async (args, context) => {
     })
 }
 
-exports.changeJestaTransactionToClosed = async (args, context) => {
+exports.userChangeJestaTransactionToClosed = async (args, context) => {
     let favorTransaction = await FavorTransactions.findById(args["favorTransactionId"]).exec();
-    if (context.sub !== favorTransaction["favorOwnerId"].toString() ||  context.role !== ROLES.ADMIN){
+    if (context.sub !== favorTransaction["handledByUserId"].toString() && context.role !== ROLES.ADMIN){
         return new Error(ErrorId.Unauthorized);
     }
     favorTransaction["status"] = JESTA_TRANSACTION_STATUS.CLOSED;

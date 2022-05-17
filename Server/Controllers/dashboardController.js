@@ -13,7 +13,6 @@ exports.getNumOfCreatedUsers = async () => {
 
     for (let i = 0; i < 30; i++) {
         let date = new Date(year, month, day - i);
-        console.log(date.toLocaleDateString())
         let localDate = date.toLocaleDateString();
         graphData.labels.push(localDate);
         let doc = await UserGraph.findOne({creationDate: localDate}).exec();
@@ -35,7 +34,6 @@ exports.getNumOfCreatedJesta = async () => {
 
     for (let i = 0; i < 30; i++) {
         let date = new Date(year, month, day - i);
-        console.log(date.toLocaleDateString())
         let localDate = date.toLocaleDateString();
         graphData.labels.push(localDate);
         let doc = await JestaGraph.findOne({creationDate: localDate}).exec();
