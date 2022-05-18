@@ -99,15 +99,24 @@ exports.updateOneSecured = async (params) => {
 }
 
 exports.updateOne = async (params) => {
-    if (!params._id && !params.email)
+    if(params.updatedUser === null || params.updatedUser === undefined ) {
+        params.updatedUser = {}
+    }
+    if (!params._id && !params.email){
         return new Error(ErrorId.MissingParameters);
-    let filter = {};
-    params._id !== undefined ? filter["_id"] = params._id : "";
-    params.email !== undefined ? filter["email"] = params.email : "";
-    if (params["newImage"]){
+    }
+    const filter = {};
+    if( params._id !== undefined && params._id !== null) {
+        filter._id = params._id;
+    } else if (params.email !== undefined && params.email !== null) {
+        filter["email"] =params.email;
+    }
+    if (params["newImage"] !== null && params["newImage"] !== undefined ){
         let user = await User.findOne(filter).exec();
-        if(user.imagePath) deleteFile(user.imagePath);
-        params.updatedUser["imagePath"] = await uploadFile(params["newImage"], FAVOR_IMAGES_PATH, FAVOR_IMAGE);
+        if(user.imagePath !== null && user.imagePath !== undefined && user.imagePath !== "" ){
+            deleteFile(user.imagePath);
+        }
+        params.updatedUser.imagePath = await uploadFile(params.newImage, consts.FAVOR_IMAGES_PATH, consts.FAVOR_IMAGE);
     }
     return await User.updateOne(filter, params.updatedUser, {runValidators: true}).then((user) => {
         if (!user.acknowledged) {
@@ -116,9 +125,9 @@ exports.updateOne = async (params) => {
         logger.info("updated user " + params.email);
         return "success";
     }).catch((error) => {
-    logger.error("failed to update user " + error)
-    let handledError = errorDuplicateKeyHandler(error)
-    return new Error(handledError)
+        logger.error("failed to update user " + error)
+        let handledError = errorDuplicateKeyHandler(error)
+        return new Error(handledError)
     });
 }
 
