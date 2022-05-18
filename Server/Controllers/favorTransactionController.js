@@ -143,11 +143,32 @@ exports.ownerNotifyJestaHasBeenDone = async (args, context) => {
         await Favor.updateOne({_id:favorTransaction.favorId},{status: JESTA_STATUS.UNAVAILABLE}).exec();
         logger.debug("owner notify jesta has been done" + favorNotified._id);
         if(args["rate"] !== undefined){
-            await rateUserAndAddJesta(favorTransaction["handledByUserId"], args["rate"])
+            await rateUserAndAddJesta(favorTransaction["handledByUserId"], args["rate"], true)
         }
         return "Success";
     }).catch(error => {
         logger.debug("owner failed to notify jesta has been done " + error);
+        return new Error(errorDuplicateKeyHandler(error))
+    })
+}
+
+exports.ownerRateJestaAndComment = async (args, context) => {
+    let favorTransaction = await FavorTransactions.findById(args["favorTransactionId"]).exec();
+    if (context.sub !== favorTransaction["favorOwnerId"].toString()){
+        return new Error(ErrorId.Unauthorized);
+    }
+    favorTransaction["handlerComment"] = args["handlerComment"] !== null ? args["handlerComment"] : "";
+    if(!args["rate"]) {
+        return new Error(ErrorId.MissingParameters)
+    }
+    favorTransaction["rating"] = args["rate"]
+    return await favorTransaction.save().then(async (favorNotified) => {
+        if(args["rate"] !== undefined){
+            await rateUserAndAddJesta(favorTransaction["handledByUserId"], args["rate"], false)
+        }
+        return "Success";
+    }).catch(error => {
+        logger.debug("owner failed to rate transaction " + error);
         return new Error(errorDuplicateKeyHandler(error))
     })
 }
@@ -168,15 +189,21 @@ exports.userChangeJestaTransactionToClosed = async (args, context) => {
     })
 }
 
-const rateUserAndAddJesta = async (userId, rating) => {
+const rateUserAndAddJesta = async (userId, rating, jestaExecuted) => {
     User.findOne(userId).then(user => {
         let numOfRates = isNaN(user["number_of_rates"]) ? 1 : user["numberOfRates"];
         let currentRating = isNaN(user["rating"]) ? 5 : user["rating"];
         let newRating = ((numOfRates * currentRating) + rating)/(numOfRates+1);
 
         let numberOfExecutedJesta = user["numberOfExecutedJesta"]
-        if (rating > 3){
-            let user = User.updateOne({ "_id": userId },{$set : {"numberOfRates" : numOfRates + 1, "rating": newRating, "numberOfExecutedJesta": numberOfExecutedJesta + 1 }}).exec();
+        if (rating > 3 && jestaExecuted) {
+            let user = User.updateOne({"_id": userId}, {
+                $set: {
+                    "numberOfRates": numOfRates + 1,
+                    "rating": newRating,
+                    "numberOfExecutedJesta": numberOfExecutedJesta + 1
+                }
+            }).exec();
             sendMedalNotification(user)
         } else {
             User.updateOne({ "_id": userId },{$set : {"numberOfRates" : numOfRates + 1, "rating": newRating}}).exec();

@@ -63,6 +63,7 @@ exports.favorTransactionTypeDefs = gql`
                         executorNotifyDoneFavor(favorTransactionId: String!): String
                         ownerNotifyJestaHasBeenDone(favorTransactionId: String!, rate: Int, handlerComment: String): String
                         userChangeJestaTransactionToClosed(favorTransactionId: String!): String
+                        rateTransactionWithOptionalComment(favorTransactionId: String!, rate: Int, handlerComment: String): String
                     }
                     `;
 
@@ -87,5 +88,6 @@ exports.favorTransactionResolvers = {
         executorNotifyDoneFavor: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.executorNotifyDoneFavor(args, context): new AuthenticationError("unauthorized"); },
         ownerNotifyJestaHasBeenDone: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.ownerNotifyJestaHasBeenDone(args, context): new AuthenticationError("unauthorized"); },
         userChangeJestaTransactionToClosed: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.userChangeJestaTransactionToClosed(args, context): new AuthenticationError("unauthorized"); },
+        rateTransactionWithOptionalComment: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransactionController.ownerRateJestaAndComment(args, context): new AuthenticationError("unauthorized"); }
     }
 }
