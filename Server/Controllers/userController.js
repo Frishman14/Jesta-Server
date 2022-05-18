@@ -19,8 +19,8 @@ exports.createOne = async (inputUser, isAdmin = false) => {
     }
     return await user.save().then(async _ => {
         if(inputUser.file){
-            const uploadImage = uploadFile(inputUser.file, PROFILE_IMAGES_PATH, PROFILE_IMAGE);
-            await uploadImage.then(result => inputUser.userParams.imagePath = result);
+            user.imagePath = uploadFile(inputUser.file, PROFILE_IMAGES_PATH, PROFILE_IMAGE);
+            await user.save();
         }
         updateUserCreatedGraph()
         logger.info("added a new user " + userToCreate.email)
