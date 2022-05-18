@@ -28,7 +28,6 @@ exports.createOne = async (inputUser, isAdmin = false) => {
         return this.connect(userToCreate);
     }).catch(error => {
         logger.error("failed to add user :" + error.message)
-
         let handledError = errorDuplicateKeyHandler(error)
         return new Error(handledError)
     })

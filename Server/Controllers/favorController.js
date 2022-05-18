@@ -60,9 +60,9 @@ exports.updateOne = async (params, token) => {
                 })
             }
             const imagesPath = []
-            params["newImages"].forEach(image => {
-                uploadFile(image, FAVOR_IMAGES_PATH, FAVOR_IMAGE).then(result => imagesPath.push[result]);
-            })
+            for (const image of params["newImages"]) {
+                imagesPath.push(await uploadFile(image, FAVOR_IMAGES_PATH, FAVOR_IMAGE));
+            }
             await Favor.updateOne(params.favorId, {imagesPath: imagesPath}).exec();
         }
         return "success"
