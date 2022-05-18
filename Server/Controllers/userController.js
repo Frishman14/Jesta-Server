@@ -107,8 +107,7 @@ exports.updateOne = async (params) => {
     if (params["newImage"]){
         let user = await User.findOne(filter).exec();
         if(user.imagePath) deleteFile(user.imagePath);
-        const uploadImage = uploadFile(params["newImage"], PROFILE_IMAGES_PATH, PROFILE_IMAGE);
-        await uploadImage.then(result => params.updatedUser.imagePath = result);
+        params.updatedUser["imagePath"] = await uploadFile(params["newImage"], FAVOR_IMAGES_PATH, FAVOR_IMAGE);
     }
     return await User.updateOne(filter, params.updatedUser, {runValidators: true}).then((user) => {
         if (!user.acknowledged) {
