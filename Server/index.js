@@ -23,8 +23,8 @@ const {dashboardResolvers, dashboardTypeDefs} = require("./endpoints/dashboard")
 // region consts
 process.env.TZ = "Asia/Jerusalem"
 const PORT = process.env.PORT || 4111;
-const MONGO_ADDRESS = process.env.MONGO_ADDRESS || 'mongodb://127.0.0.1:21771/Jesta';
-const ADDRESS = MONGO_ADDRESS === 'mongodb://127.0.0.1:21771/Jesta' ? "127.0.0.1" : "193.106.55.114";
+const MONGO_ADDRESS = process.env.MONGO_ADDRESS || 'mongodb://127.0.0.1/Jesta';
+const ADDRESS = MONGO_ADDRESS === 'mongodb://127.0.0.1/Jesta' ? "127.0.0.1" : "193.106.55.114";
 const resolvers = [userResolvers, favorResolvers, categoryResolvers, performResolvers, favorTransactionResolvers, dashboardResolvers]
 const typeDefs = [userTypeDefs, favorTypeDefs, categoryTypeDefs, performTypeDefs, favorTransactionTypeDefs, dashboardTypeDefs]
 // endregion
