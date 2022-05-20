@@ -53,7 +53,7 @@ exports.handleRequestApproved = async (args, _) => {
     let favorTransaction = await FavorTransactions.findById(args["favorTransactionId"]).exec();
     favorTransaction.status = JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME;
     return await favorTransaction.save().then(async (savedTransactionRequest) => {
-        await FavorTransactions.updateMany({ favorId: favorTransaction.favorId, $ne :{ _id: args["favorTransactionId"]}}, {status: JESTA_TRANSACTION_STATUS.CANCELED}).exec()
+        await FavorTransactions.updateMany({ favorId: favorTransaction.favorId.toString(), _id :{$ne : args["favorTransactionId"]}  }, {status: JESTA_TRANSACTION_STATUS.CANCELED}).exec()
         logger.debug("transaction approved " + savedTransactionRequest._id);
         let user = await User.findById(favorTransaction["handledByUserId"]).exec();
         if ( user["notificationToken"] !== null && user["notificationToken"] !== undefined){
