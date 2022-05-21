@@ -55,6 +55,7 @@ exports.favorTransactionTypeDefs = gql`
                         getNumberOfOnProgressJesta: Int
                         getNumberOfExecutedJesta: Int
                         getTransactionById(id: String): PopulatedFavorTransaction
+                        getAllUserHandledFavorTransactionByStatus(status: FavorTransactionStatus, handledByUserId: String): [FavorTransaction]
                     }
                     type Mutation {
                         createFavorTransactionRequest(favorId: String!, comment: String): String
@@ -72,6 +73,7 @@ exports.favorTransactionResolvers = {
     Query: {
         getAllFavorTransactionByFavorIdWhenOwner: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({"favorId": args.favorId, "favorOwnerId": context.sub}).populate("handledByUserId favorId favorOwnerId").exec() : new AuthenticationError("unauthorized"); },
         getAllUserFavorTransactionByFavorId: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.findOne({"favorId": args.favorId, "handledByUserId": context.sub}).exec() : new AuthenticationError("unauthorized"); },
+        getAllUserHandledFavorTransactionByStatus: async (parent, args, context) => { return isAuthenticated(context) ?await favorTransaction.find({ handledByUserId : args.handledByUserId , status : args.status }).exec(): new AuthenticationError("unauthorized"); },
         getAllFavorTransaction: async (parent, args, context) => { return isAuthenticated(context) ? await favorTransaction.find({}).exec() : new AuthenticationError("unauthorized"); },
         getAllOwnerFavorTransactionByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await getFavorTransactionByStatusAndHandlerOrExecutorAndDate(true,args,context) : new AuthenticationError("unauthorized"); },
         getAllExecutorFavorTransactionByStatus: async (parent, args, context) => { return isAuthenticated(context) ? await getFavorTransactionByStatusAndHandlerOrExecutorAndDate(false,args,context) : new AuthenticationError("unauthorized"); },
