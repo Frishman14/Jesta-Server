@@ -84,6 +84,17 @@ exports.handleRequestCanceled = async (args, context) => {
     return await favorTransaction.save().then(async (savedTransactionRequest) => {
         await Favor.updateOne({_id:favorTransaction.favorId},{status: JESTA_STATUS.AVAILABLE}).exec();
         logger.debug("transaction request canceled " + savedTransactionRequest._id);
+        let user = await User.findById(favorTransaction["handledByUserId"]).exec();
+        if ( user["notificationToken"] !== null && user["notificationToken"] !== undefined){
+            logger.debug("sending notification to " + favorTransaction["handledByUserId"])
+            const message = {
+                notification : {
+                    "title":"מישהו ביטל ג'סטה שאתה מעורב בה",
+                    "body": "בוא בדוק מי זה ואיזה ג'סטה"
+                }
+            };
+            sentToOneUserMessage(user["notificationToken"],message,"high")
+        }
         return "Success";
     }).catch(error => {
         logger.debug("error in transaction request canceled " + error);
