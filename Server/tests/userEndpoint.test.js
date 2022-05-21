@@ -39,5 +39,53 @@ describe("categoryController test", () => {
         });
         expect(result.data.getAllUsers).toHaveLength(1)
     })
+
+    test("getAllUsers test", async () => {
+        const result = await testServer.executeOperation({
+            query: 'query GetAllUsers {\n' +
+                '  getAllUsers {\n' +
+                '    birthday\n' +
+                '    description\n' +
+                '  }\n' +
+                '}'
+        });
+        expect(result.data.getAllUsers).toHaveLength(1)
+    })
+
+    test("getAllClients test", async () => {
+        const result = await testServer.executeOperation({
+            query: 'query getAllClients {\n' +
+                '  getAllClients {\n' +
+                '    birthday\n' +
+                '    description\n' +
+                '  }\n' +
+                '}'
+        });
+        expect(result.data.getAllClients).toHaveLength(1)
+    })
+
+    test("getAllAdmins test", async () => {
+        const result = await testServer.executeOperation({
+            query: 'query getAllAdmins {\n' +
+                '  getAllAdmins {\n' +
+                '    birthday\n' +
+                '    description\n' +
+                '  }\n' +
+                '}'
+        });
+        expect(result.data.getAllAdmins).toHaveLength(0)
+    })
+
+    test("getUser test", async () => {
+        const result = await testServer.executeOperation({
+            query: 'query getAllAdmins {\n' +
+                '  getAllAdmins {\n' +
+                '    birthday\n' +
+                '    description\n' +
+                '  }\n' +
+                '}'
+        });
+        expect(result.data.getAllAdmins).toHaveLength(0)
+    })
 })
 

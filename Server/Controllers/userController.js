@@ -19,7 +19,7 @@ exports.createOne = async (inputUser, isAdmin = false) => {
     }
     return await user.save().then(async _ => {
         if(inputUser.file){
-            user.imagePath = uploadFile(inputUser.file, PROFILE_IMAGES_PATH, PROFILE_IMAGE);
+            user.imagePath = await uploadFile(inputUser.file, PROFILE_IMAGES_PATH, PROFILE_IMAGE);
             await user.save();
         }
         updateUserCreatedGraph()
@@ -115,7 +115,7 @@ exports.updateOne = async (params) => {
         if(user.imagePath !== null && user.imagePath !== undefined && user.imagePath !== "" ){
             deleteFile(user.imagePath);
         }
-        params.updatedUser.imagePath = await uploadFile(params.newImage, consts.FAVOR_IMAGES_PATH, consts.FAVOR_IMAGE);
+        params.updatedUser.imagePath = await uploadFile(params.newImage, PROFILE_IMAGES_PATH, PROFILE_IMAGE);
     }
     return await User.updateOne(filter, params.updatedUser, {runValidators: true}).then((user) => {
         if (!user.acknowledged) {

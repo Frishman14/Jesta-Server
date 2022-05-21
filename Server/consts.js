@@ -1,5 +1,5 @@
 // paths
-const PROFILE_IMAGE = "/profile_images/"
+const PROFILE_IMAGE = "profile_images/"
 const FAVOR_IMAGE = "/favor_images/"
 const STATIC_FILE_PATHS = "./data"
 const PROFILE_IMAGES_PATH = STATIC_FILE_PATHS + PROFILE_IMAGE
