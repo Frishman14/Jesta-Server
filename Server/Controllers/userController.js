@@ -101,6 +101,9 @@ exports.updateOne = async (params) => {
     if(params.updatedUser === null || params.updatedUser === undefined ) {
         params.updatedUser = {}
     }
+    if(params.updatedUser.fullAddress !== null && params.updatedUser.fullAddress !== undefined) {
+        params.updatedUser.address = { "fullAddress" : params.updatedUser.fullAddress };
+    }
     if (!params._id && !params.email){
         return new Error(ErrorId.MissingParameters);
     }
