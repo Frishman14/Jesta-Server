@@ -4,7 +4,7 @@ const logger = require("../../logger");
 const {sentToOneUserMessage} = require("../firebase-messaging");
 
 exports.run = async () => {
-    logger.debug("notify service: notifyJestaExecutionSoon is running")
+    logger.debug("notify service: notifyOwnerJestaExecutionSoon is running")
     let dateNow = new Date();
     let futureDate = new Date(dateNow.getTime() + 15*60000) // in a 15 min
     let favors = await Favor.find({dateToExecute: {$gt : dateNow, $lt: futureDate}}).populate("ownerId").exec();
@@ -15,12 +15,12 @@ exports.run = async () => {
         } else {
             const message = {
                 notification : {
-                    "title":"מזכירים לך שבקרוב יש לך ג'סטה לבצע!",
+                    "title":"מזכירים לך שתכף באים לבצע לך ג'סטה!",
                     "body": "בוא בדוק איזה"
                 }
             }
             sentToOneUserMessage(favor["ownerId"]["notificationToken"], message, "high")
         }
     })
-    logger.debug("notify service: notifyJestaExecutionSoon is done")
+    logger.debug("notify service: notifyOwnerJestaExecutionSoon is done")
 }

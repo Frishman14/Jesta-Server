@@ -13,7 +13,8 @@ const {graphqlUploadExpress} = require('graphql-upload');
 const admin = require("firebase-admin");
 const serviceManager = require("./Services/servicesManager");
 const mostVolunteeredService = require("./Services/Gimification/getTheMostVolunteers");
-const notifyJestaExecutionSoon = require("./Services/notifications/notifyJestaExecutionSoon");
+const notifyOwnerJestaExecutionSoon = require("./Services/notifications/notifyOwnerJestaExecutionSoon");
+const notifyExecutorJestaExecutionSoon = require("./Services/notifications/notifyExecutorJestaExecutionSoon");
 require('dotenv').config({path: "/home/cs122/IdeaProjects/Jesta-Server/.env"});
 
 const logger = require("./logger");
@@ -52,7 +53,7 @@ async function startApolloServer(typeDefs, resolvers) {
     // endregion
 
     // region init app services
-    const every15minServices = [notifyJestaExecutionSoon]
+    const every15minServices = [notifyOwnerJestaExecutionSoon,notifyExecutorJestaExecutionSoon]
     const everyDayServices = [mostVolunteeredService]
     serviceManager.start(everyDayServices, every15minServices)
     // endregion
