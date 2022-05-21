@@ -79,12 +79,13 @@ exports.handleRequestCanceled = async (args, context) => {
     if(favorTransaction["favorOwnerId"].toString() !== context.sub && favorTransaction["handledByUserId"].toString() !== context.sub && context.role !== ROLES.ADMIN){
         return new AuthenticationError("unauthorized");
     }
+    var userId = favorTransaction["favorOwnerId"].toString() === context.sub ? favorTransaction["favorOwnerId"] : favorTransaction["handledByUserId"];
     favorTransaction.status = JESTA_TRANSACTION_STATUS.CANCELED;
     favorTransaction.canceledBy = context.sub;
     return await favorTransaction.save().then(async (savedTransactionRequest) => {
         await Favor.updateOne({_id:favorTransaction.favorId},{status: JESTA_STATUS.AVAILABLE}).exec();
         logger.debug("transaction request canceled " + savedTransactionRequest._id);
-        let user = await User.findById(favorTransaction["handledByUserId"]).exec();
+        let user = await User.findById(userId).exec();
         if ( user["notificationToken"] !== null && user["notificationToken"] !== undefined){
             logger.debug("sending notification to " + favorTransaction["handledByUserId"])
             const message = {
