@@ -4,7 +4,6 @@ const {ApolloServer} = require('apollo-server-express');
 const {ApolloServerPluginDrainHttpServer} = require("apollo-server-core")
 const http = require("http");
 const {userTypeDefs, userResolvers} = require('./endpoints/user');
-const {performTypeDefs, performResolvers} = require('./endpoints/perform');
 const {categoryTypeDefs, categoryResolvers} = require('./endpoints/category');
 const {favorResolvers, favorTypeDefs} = require('./endpoints/favor');
 const {favorTransactionResolvers, favorTransactionTypeDefs} = require('./endpoints/favorTransaction');
@@ -26,8 +25,8 @@ process.env.TZ = "Asia/Jerusalem"
 const PORT = process.env.PORT || 4111;
 const MONGO_ADDRESS = process.env.MONGO_ADDRESS || 'mongodb://127.0.0.1/Jesta';
 const ADDRESS = MONGO_ADDRESS === 'mongodb://127.0.0.1/Jesta' ? "127.0.0.1" : "193.106.55.114";
-const resolvers = [userResolvers, favorResolvers, categoryResolvers, performResolvers, favorTransactionResolvers, dashboardResolvers]
-const typeDefs = [userTypeDefs, favorTypeDefs, categoryTypeDefs, performTypeDefs, favorTransactionTypeDefs, dashboardTypeDefs]
+const resolvers = [userResolvers, favorResolvers, categoryResolvers, favorTransactionResolvers, dashboardResolvers]
+const typeDefs = [userTypeDefs, favorTypeDefs, categoryTypeDefs, favorTransactionTypeDefs, dashboardTypeDefs]
 // endregion
 
 // region app init
