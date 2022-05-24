@@ -1,8 +1,8 @@
 const mongoose = require('mongoose')
 const mongoDB = 'mongodb://localhost/TestCategory'
 mongoose.connect(mongoDB)
-const Category = require('../Models/favors/Category');
-const { createOne, deleteOne, updateOne} = require('../Controllers/categoryController');
+const Category = require('../../Models/favors/Category');
+const { createOne, deleteOne, updateOne} = require('../../Controllers/categoryController');
 
 const mockCategoryDetails = {
     category : {

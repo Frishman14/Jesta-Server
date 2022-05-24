@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const mongoDB = 'mongodb://localhost/TestFavor'
+const mongoDB = 'mongodb://localhost/TestFavorTransaction'
 mongoose.connect(mongoDB)
 const Favor = require('../Models/favors/Favor')
 const User = require('../Models/User');

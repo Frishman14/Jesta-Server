@@ -4,7 +4,7 @@
   "description": "this package include Jesta App backend",
   "main": "index.js",
   "scripts": {
-    "test": "jest --coverage",
+    "test": "jest --runInBand --coverage",
     "build": "npm i",
     "dev": "nodemon index.js",
     "start": "npm i && node index.js"
@@ -36,6 +36,7 @@
     "winston": "^3.6.0"
   },
   "devDependencies": {
-    "jest": "^27.5.1"
+    "jest": "^27.5.1",
+    "firebase-admin": "^10.1.0"
   }
 }
