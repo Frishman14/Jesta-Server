@@ -54,7 +54,7 @@ exports.favorTransactionTypeDefs = gql`
                         getAllOwnerFavorTransactionByStatus(status: FavorTransactionStatus, fromDate: DateTime): [PopulatedFavorTransaction]
                         getAllExecutorFavorTransactionByStatus(status: FavorTransactionStatus, fromDate: DateTime): [PopulatedFavorTransaction]
                         getNumberOfOnProgressJesta: Int
-                        getAllFavorTransactionByFavorId: [FavorTransaction]
+                        getAllFavorTransactionByFavorId(favorId: String): [FavorTransaction]
                         getNumberOfExecutedJesta: Int
                         getTransactionById(id: String): PopulatedFavorTransaction
                         getAllUserHandledFavorTransactionByStatus(status: FavorTransactionStatus, handledByUserId: String): [PopulatedFavorTransaction]
