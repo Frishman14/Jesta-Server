@@ -78,11 +78,12 @@ exports.handleRequestApproved = async (args, _) => {
         logger.debug("enough people approved");
         favorTransaction.status = JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME;
         console.log(favorTransaction)
-        await favorTransaction.save().then(a => console.log(a));
+        await favorTransaction.save().then(_ => logger.debug(_));
         await FavorTransactions.updateMany({favorId: favorTransaction["favorId"],
                 status: JESTA_TRANSACTION_STATUS.WAITING_FOR_MORE_APPROVAL
         }, {status: JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME}).exec();
-        await favorsInWaitingForMoreApprovalStatus.forEach(async favor => {
+        let a = await favorsInWaitingForMoreApprovalStatus.forEach(async (favor) => {
+            console.log(favor)
             let user = await User.findById(favor["handledByUserId"]).exec();
             if ( user["notificationToken"] !== null && user["notificationToken"] !== undefined){
                 logger.debug("sending notification to " + favorTransaction["handledByUserId"])
@@ -94,11 +95,12 @@ exports.handleRequestApproved = async (args, _) => {
                 };
                 await sentToOneUserMessage(user["notificationToken"],message,"high")
             }
-            await Favor.updateOne({_id:favorTransaction.favorId},{status: JESTA_STATUS.UNAVAILABLE}).exec();
         }).catch(error => {
             logger.debug("error in approved transaction " + error);
             return new Error(errorDuplicateKeyHandler(error))
         });
+        console.log(a)
+        await Favor.updateOne({_id:favorTransaction.favorId},{status: JESTA_STATUS.UNAVAILABLE}).exec();
         return "success";
     }
     favorTransaction.status = JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME;
