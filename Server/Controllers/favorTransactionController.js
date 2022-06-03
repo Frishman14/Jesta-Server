@@ -52,7 +52,7 @@ const sendCreateMessage = async (favorOwnerId) => {
 exports.handleRequestApproved = async (args, _) => {
     let favorTransaction = await FavorTransactions.findById(args["favorTransactionId"]).exec();
     let favor = await Favor.findById(favorTransaction["favorId"]).exec();
-    let favorsInWaitingForMoreApprovalStatus = await favorTransaction.find({"favorId": args.favorId, "status": JESTA_TRANSACTION_STATUS.WAITING_FOR_MORE_APPROVAL}).exec();
+    let favorsInWaitingForMoreApprovalStatus = await FavorTransactions.find({"favorId": args.favorId, "status": JESTA_TRANSACTION_STATUS.WAITING_FOR_MORE_APPROVAL}).exec();
     if (favor["numOfPeopleNeeded"] > 1 && favorsInWaitingForMoreApprovalStatus.length < favor["numOfPeopleNeeded"] - 1){
         favorTransaction.status = JESTA_TRANSACTION_STATUS.WAITING_FOR_MORE_APPROVAL;
     } else if (favorsInWaitingForMoreApprovalStatus.length === favor["numOfPeopleNeeded"] - 1) {
@@ -205,7 +205,7 @@ exports.ownerRateJestaAndComment = async (args, context) => {
         return new Error(ErrorId.MissingParameters)
     }
     favorTransaction["rating"] = args["rate"]
-    return await favorTransaction.save().then(async (favorNotified) => {
+    return await favorTransaction.save().then(async (_) => {
         if(args["rate"] !== undefined){
             await rateUserAndAddJesta(favorTransaction["handledByUserId"], args["rate"], false)
         }
