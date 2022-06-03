@@ -53,7 +53,6 @@ exports.handleRequestApproved = async (args, _) => {
     let favorTransaction = await FavorTransactions.findById(args["favorTransactionId"]).exec();
     let favor = await Favor.findById(favorTransaction["favorId"]).exec();
     let favorsInWaitingForMoreApprovalStatus = await FavorTransactions.find({"favorId": {$eq: favorTransaction["favorId"]}, "status": {$eq: JESTA_TRANSACTION_STATUS.WAITING_FOR_MORE_APPROVAL}}).exec();
-    console.log(favor["numOfPeopleNeeded"] > 1 && favorsInWaitingForMoreApprovalStatus.length === favor["numOfPeopleNeeded"] - 1)
     if (favor["numOfPeopleNeeded"] > 1 && favorsInWaitingForMoreApprovalStatus.length < favor["numOfPeopleNeeded"] - 1) {
         favorTransaction.status = JESTA_TRANSACTION_STATUS.WAITING_FOR_MORE_APPROVAL;
         return await favorTransaction.save().then(async (savedTransactionRequest) => {
