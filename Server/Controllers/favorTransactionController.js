@@ -52,10 +52,10 @@ const sendCreateMessage = async (favorOwnerId) => {
 exports.handleRequestApproved = async (args, _) => {
     let favorTransaction = await FavorTransactions.findById(args["favorTransactionId"]).exec();
     let favor = await Favor.findById(favorTransaction["favorId"]).exec();
-    console.log( favorsInWaitingForMoreApprovalStatus.length)
     console.log( favor["numOfPeopleNeeded"])
     console.log(favor["numOfPeopleNeeded"] > 1 && favorsInWaitingForMoreApprovalStatus.length === favor["numOfPeopleNeeded"] - 1)
     let favorsInWaitingForMoreApprovalStatus = await FavorTransactions.find({"favorId": args.favorId, "status": JESTA_TRANSACTION_STATUS.WAITING_FOR_MORE_APPROVAL}).exec();
+    console.log( favorsInWaitingForMoreApprovalStatus.length)
     if (favor["numOfPeopleNeeded"] > 1 && favorsInWaitingForMoreApprovalStatus.length < favor["numOfPeopleNeeded"] - 1) {
         favorTransaction.status = JESTA_TRANSACTION_STATUS.WAITING_FOR_MORE_APPROVAL;
         return await favorTransaction.save().then(async (savedTransactionRequest) => {
