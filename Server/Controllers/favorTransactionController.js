@@ -70,7 +70,7 @@ exports.handleRequestApproved = async (args, _) => {
             }
             return "Success";
         })
-    } else if (favorsInWaitingForMoreApprovalStatus.length === favor["numOfPeopleNeeded"] - 1) {
+    } else if (favor["numOfPeopleNeeded"] > 1 && favorsInWaitingForMoreApprovalStatus.length === favor["numOfPeopleNeeded"] - 1) {
         logger.debug("enough people approved");
         favorTransaction.status = JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME;
         await favorTransaction.save();
