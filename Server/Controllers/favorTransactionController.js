@@ -81,10 +81,8 @@ exports.handleRequestApproved = async (args, _) => {
         await FavorTransactions.updateMany({favorId: favorTransaction["favorId"],
                 status: JESTA_TRANSACTION_STATUS.WAITING_FOR_MORE_APPROVAL
         }, {status: JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME}).exec();
-        console.log("favors:")
-        console.log(favorsInWaitingForMoreApprovalStatus)
-        let a = await favorsInWaitingForMoreApprovalStatus.forEach(async (favor) => {
-            let user = await User.findById(favor["handledByUserId"]).exec();
+        for (const favor1 of favorsInWaitingForMoreApprovalStatus) {
+            let user = await User.findById(favor1["handledByUserId"]).exec();
             if ( user["notificationToken"] !== null && user["notificationToken"] !== undefined){
                 logger.debug("sending notification to " + favorTransaction["handledByUserId"])
                 const message = {
@@ -95,11 +93,7 @@ exports.handleRequestApproved = async (args, _) => {
                 };
                 await sentToOneUserMessage(user["notificationToken"],message,"high")
             }
-        }).catch(error => {
-            logger.debug("error in approved transaction " + error);
-            return new Error(errorDuplicateKeyHandler(error))
-        });
-        console.log(a)
+        }
         await Favor.updateOne({_id:favorTransaction.favorId},{status: JESTA_STATUS.UNAVAILABLE}).exec();
         return "success";
     }
