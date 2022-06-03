@@ -12,6 +12,7 @@ exports.favorTransactionTypeDefs = gql`
                         PENDING_FOR_OWNER
                         WAITING_FOR_JESTA_EXECUTION_TIME
                         EXECUTOR_FINISH_JESTA
+                        WAITING_FOR_MORE_APPROVAL
                         JESTA_DONE
                         CANCELED
                         CLOSED
