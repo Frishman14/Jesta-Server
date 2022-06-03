@@ -77,13 +77,13 @@ exports.handleRequestApproved = async (args, _) => {
     } else if (favor["numOfPeopleNeeded"] > 1 && favorsInWaitingForMoreApprovalStatus.length === favor["numOfPeopleNeeded"] - 1 || favorsInWaitingForMoreApprovalStatus.length === favor["numOfPeopleNeeded"]) {
         logger.debug("enough people approved");
         favorTransaction.status = JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME;
-        console.log(favorTransaction)
         await favorTransaction.save().then(_ => logger.debug(_));
         await FavorTransactions.updateMany({favorId: favorTransaction["favorId"],
                 status: JESTA_TRANSACTION_STATUS.WAITING_FOR_MORE_APPROVAL
         }, {status: JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME}).exec();
+        console.log("favors:")
+        console.log(favorsInWaitingForMoreApprovalStatus)
         let a = await favorsInWaitingForMoreApprovalStatus.forEach(async (favor) => {
-            console.log(favor)
             let user = await User.findById(favor["handledByUserId"]).exec();
             if ( user["notificationToken"] !== null && user["notificationToken"] !== undefined){
                 logger.debug("sending notification to " + favorTransaction["handledByUserId"])
