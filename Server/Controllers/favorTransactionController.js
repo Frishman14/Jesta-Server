@@ -141,6 +141,9 @@ exports.handleRequestCanceled = async (args, context) => {
             };
             sentToOneUserMessage(user["notificationToken"],message,"high")
         }
+        await FavorTransactions.updateMany({favorId: favorTransaction["favorId"],
+            status: JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME
+        }, {status: JESTA_TRANSACTION_STATUS.WAITING_FOR_MORE_APPROVAL}).exec();
         return "Success";
     }).catch(error => {
         logger.debug("error in transaction request canceled " + error);
