@@ -69,7 +69,10 @@ exports.handleRequestApproved = async (args, _) => {
                 sentToOneUserMessage(user["notificationToken"], message, "high")
             }
             return "Success";
-        })
+        }).catch(error => {
+            logger.debug("error in approved transaction " + error);
+            return new Error(errorDuplicateKeyHandler(error))
+        });
     } else if (favor["numOfPeopleNeeded"] > 1 && favorsInWaitingForMoreApprovalStatus.length === favor["numOfPeopleNeeded"] - 1) {
         logger.debug("enough people approved");
         favorTransaction.status = JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME;
