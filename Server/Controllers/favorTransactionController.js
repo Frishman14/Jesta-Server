@@ -52,11 +52,7 @@ const sendCreateMessage = async (favorOwnerId) => {
 exports.handleRequestApproved = async (args, _) => {
     let favorTransaction = await FavorTransactions.findById(args["favorTransactionId"]).exec();
     let favor = await Favor.findById(favorTransaction["favorId"]).exec();
-    console.log( favor["numOfPeopleNeeded"])
-    console.log(args.favorId)
     let favorsInWaitingForMoreApprovalStatus = await FavorTransactions.find({"favorId": {$eq: favorTransaction["favorId"]}, "status": {$eq: JESTA_TRANSACTION_STATUS.WAITING_FOR_MORE_APPROVAL}}).exec();
-    console.log(favorsInWaitingForMoreApprovalStatus.length)
-    console.log(favorsInWaitingForMoreApprovalStatus)
     console.log(favor["numOfPeopleNeeded"] > 1 && favorsInWaitingForMoreApprovalStatus.length === favor["numOfPeopleNeeded"] - 1)
     if (favor["numOfPeopleNeeded"] > 1 && favorsInWaitingForMoreApprovalStatus.length < favor["numOfPeopleNeeded"] - 1) {
         favorTransaction.status = JESTA_TRANSACTION_STATUS.WAITING_FOR_MORE_APPROVAL;
@@ -81,7 +77,7 @@ exports.handleRequestApproved = async (args, _) => {
     } else if (favor["numOfPeopleNeeded"] > 1 && favorsInWaitingForMoreApprovalStatus.length === favor["numOfPeopleNeeded"] - 1 || favorsInWaitingForMoreApprovalStatus.length === favor["numOfPeopleNeeded"]) {
         logger.debug("enough people approved");
         favorTransaction.status = JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME;
-        await favorTransaction.save();
+        await favorTransaction.save().exec();
         await FavorTransactions.updateMany({favorId: favorTransaction["favorId"],
                 status: JESTA_TRANSACTION_STATUS.WAITING_FOR_MORE_APPROVAL
         }, {status: JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME}).exec();
