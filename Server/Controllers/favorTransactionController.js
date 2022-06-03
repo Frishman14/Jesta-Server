@@ -53,8 +53,23 @@ exports.handleRequestApproved = async (args, _) => {
     let favorTransaction = await FavorTransactions.findById(args["favorTransactionId"]).exec();
     let favor = await Favor.findById(favorTransaction["favorId"]).exec();
     let favorsInWaitingForMoreApprovalStatus = await FavorTransactions.find({"favorId": args.favorId, "status": JESTA_TRANSACTION_STATUS.WAITING_FOR_MORE_APPROVAL}).exec();
-    if (favor["numOfPeopleNeeded"] > 1 && favorsInWaitingForMoreApprovalStatus.length < favor["numOfPeopleNeeded"] - 1){
+    if (favor["numOfPeopleNeeded"] > 1 && favorsInWaitingForMoreApprovalStatus.length < favor["numOfPeopleNeeded"] - 1) {
         favorTransaction.status = JESTA_TRANSACTION_STATUS.WAITING_FOR_MORE_APPROVAL;
+        return await favorTransaction.save().then(async (savedTransactionRequest) => {
+            logger.debug("transaction approved and waiting " + savedTransactionRequest._id);
+            let user = await User.findById(favorTransaction["handledByUserId"]).exec();
+            if (user["notificationToken"] !== null && user["notificationToken"] !== undefined) {
+                logger.debug("sending notification to " + favorTransaction["handledByUserId"])
+                const message = {
+                    notification: {
+                        "title": "מישהו אישר את הבקשה שלך לעשות ג'סטה אך מחכים לאנשים נוספים",
+                        "body": "בוא בדוק מי זה"
+                    }
+                };
+                sentToOneUserMessage(user["notificationToken"], message, "high")
+            }
+            return "Success";
+        })
     } else if (favorsInWaitingForMoreApprovalStatus.length === favor["numOfPeopleNeeded"] - 1) {
         favorTransaction.status = JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME;
         await favorTransaction.save();
@@ -81,9 +96,8 @@ exports.handleRequestApproved = async (args, _) => {
             return new Error(errorDuplicateKeyHandler(error))
         });
         return "success";
-    } else {
-        favorTransaction.status = JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME;
     }
+    favorTransaction.status = JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME;
     return await favorTransaction.save().then(async (savedTransactionRequest) => {
         await FavorTransactions.updateMany({ favorId: favorTransaction.favorId.toString(), _id :{$ne : args["favorTransactionId"]}  }, {status: JESTA_TRANSACTION_STATUS.CANCELED}).exec()
         logger.debug("transaction approved " + savedTransactionRequest._id);
