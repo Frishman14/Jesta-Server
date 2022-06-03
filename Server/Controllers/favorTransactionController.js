@@ -54,7 +54,8 @@ exports.handleRequestApproved = async (args, _) => {
     let favor = await Favor.findById(favorTransaction["favorId"]).exec();
     console.log( favor["numOfPeopleNeeded"])
     let favorsInWaitingForMoreApprovalStatus = await FavorTransactions.find({$and : [{"favorId": args.favorId}, {"status": JESTA_TRANSACTION_STATUS.WAITING_FOR_MORE_APPROVAL}]}).exec();
-    console.log( favorsInWaitingForMoreApprovalStatus.length)
+    console.log(favorsInWaitingForMoreApprovalStatus.length)
+    console.log(favorsInWaitingForMoreApprovalStatus)
     console.log(favor["numOfPeopleNeeded"] > 1 && favorsInWaitingForMoreApprovalStatus.length === favor["numOfPeopleNeeded"] - 1)
     if (favor["numOfPeopleNeeded"] > 1 && favorsInWaitingForMoreApprovalStatus.length < favor["numOfPeopleNeeded"] - 1) {
         favorTransaction.status = JESTA_TRANSACTION_STATUS.WAITING_FOR_MORE_APPROVAL;
@@ -76,7 +77,7 @@ exports.handleRequestApproved = async (args, _) => {
             logger.debug("error in approved transaction " + error);
             return new Error(errorDuplicateKeyHandler(error))
         });
-    } else if (favor["numOfPeopleNeeded"] > 1 && favorsInWaitingForMoreApprovalStatus.length === favor["numOfPeopleNeeded"] - 1) {
+    } else if (favor["numOfPeopleNeeded"] > 1 && favorsInWaitingForMoreApprovalStatus.length === favor["numOfPeopleNeeded"] - 1 || favorsInWaitingForMoreApprovalStatus.length === favor["numOfPeopleNeeded"]) {
         logger.debug("enough people approved");
         favorTransaction.status = JESTA_TRANSACTION_STATUS.WAITING_FOR_JESTA_EXECUTION_TIME;
         await favorTransaction.save();
