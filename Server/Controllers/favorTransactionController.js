@@ -9,6 +9,27 @@ const {AuthenticationError} = require("apollo-server-express");
 const {sentToOneUserMessage} = require("../Services/firebase-messaging");
 const favorTransaction = require("../Models/favors/FavorTransactions");
 
+const messageForApprovedButWaitingForMore = {
+    notification: {
+        "title": "מישהו אישר את הבקשה שלך לעשות ג'סטה אך מחכים לאנשים נוספים",
+        "body": "בוא בדוק מי זה"
+    }
+};
+
+const messageForApproveExecutorsNumber = {
+    notification : {
+        "title":"שמחים לבשר לך שיש מספיק אנשים לג'סטה שרצית לעשות!",
+        "body": "בוא וראה איזה ג'סטה"
+    }
+};
+
+const ApproveOneJesta = {
+    notification : {
+        "title":"מישהו אישר את הבקשה שלך לעשות ג'סטה",
+        "body": "בוא בדוק מי זה"
+    }
+};
+
 exports.createRequest = async (args, context) => {
     let favorTransaction = new FavorTransactions();
     let favor = await Favor.findById(args.favorId).exec();
@@ -60,15 +81,9 @@ exports.handleRequestApproved = async (args, _) => {
             let user = await User.findById(favorTransaction["handledByUserId"]).exec();
             if (user["notificationToken"] !== null && user["notificationToken"] !== undefined) {
                 logger.debug("sending notification to " + favorTransaction["handledByUserId"])
-                const message = {
-                    notification: {
-                        "title": "מישהו אישר את הבקשה שלך לעשות ג'סטה אך מחכים לאנשים נוספים",
-                        "body": "בוא בדוק מי זה"
-                    }
-                };
-                sentToOneUserMessage(user["notificationToken"], message, "high")
+                sentToOneUserMessage(user["notificationToken"], messageForApprovedButWaitingForMore, "high")
             }
-            return "Success";
+            return "success";
         }).catch(error => {
             logger.debug("error in approved transaction " + error);
             return new Error(errorDuplicateKeyHandler(error))
@@ -84,13 +99,7 @@ exports.handleRequestApproved = async (args, _) => {
             let user = await User.findById(favor1["handledByUserId"]).exec();
             if ( user["notificationToken"] !== null && user["notificationToken"] !== undefined){
                 logger.debug("sending notification to " + favorTransaction["handledByUserId"])
-                const message = {
-                    notification : {
-                        "title":"שמחים לבשר לך שיש מספיק אנשים לג'סטה שרצית לעשות!",
-                        "body": "בוא וראה איזה ג'סטה"
-                    }
-                };
-                await sentToOneUserMessage(user["notificationToken"],message,"high")
+                await sentToOneUserMessage(user["notificationToken"],messageForApproveExecutorsNumber,"high")
             }
         }
         await Favor.updateOne({_id:favorTransaction.favorId},{status: JESTA_STATUS.UNAVAILABLE}).exec();
@@ -103,13 +112,7 @@ exports.handleRequestApproved = async (args, _) => {
         let user = await User.findById(favorTransaction["handledByUserId"]).exec();
         if ( user["notificationToken"] !== null && user["notificationToken"] !== undefined){
             logger.debug("sending notification to " + favorTransaction["handledByUserId"])
-            const message = {
-                notification : {
-                    "title":"מישהו אישר את הבקשה שלך לעשות ג'סטה",
-                    "body": "בוא בדוק מי זה"
-                }
-            };
-            sentToOneUserMessage(user["notificationToken"],message,"high")
+            sentToOneUserMessage(user["notificationToken"],ApproveOneJesta,"high")
         }
         await Favor.updateOne({_id:favorTransaction.favorId},{status: JESTA_STATUS.UNAVAILABLE}).exec();
         return "Success";
