@@ -76,7 +76,7 @@ exports.findByRadios = async (params) => {
     let query = {
         "sourceAddress.location" : {
                 $geoWithin: {
-                    $centerSphere: [params.center, kmToRadian(params["radius"])]
+                    $centerSphere: [params.center, kmToRadian(params["radius"] * 0.99)]
                 }
         }
     };
@@ -95,7 +95,7 @@ exports.findByRadiosAndDateAndOnlyAvailable = async (params, context) => {
         "dateToExecute": {$lte: limitDate},
         "sourceAddress.location" : {
             $geoWithin: {
-                $centerSphere: [params.center, kmToRadian(params["radius"])]
+                $centerSphere: [params.center, kmToRadian(params["radius"] * 0.99)]
             }
         },
         "status": JESTA_STATUS.AVAILABLE
