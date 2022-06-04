@@ -94,9 +94,8 @@ exports.findByRadiosAndDateAndOnlyAvailable = async (params, context) => {
         },
         "dateToExecute": {$lte: limitDate},
         "sourceAddress.location" : {
-            $geoWithin: {
-                $centerSphere: [params.center, kmToRadian(params["radius"])]
-            }
+            $near: params.center , $maxDistance: params["radius"]
+
         },
         "status": JESTA_STATUS.AVAILABLE
     };
