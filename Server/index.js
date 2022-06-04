@@ -14,6 +14,7 @@ const serviceManager = require("./Services/servicesManager");
 const mostVolunteeredService = require("./Services/Gimification/getTheMostVolunteers");
 const notifyOwnerJestaExecutionSoon = require("./Services/notifications/notifyOwnerJestaExecutionSoon");
 const notifyExecutorJestaExecutionSoon = require("./Services/notifications/notifyExecutorJestaExecutionSoon");
+const makeJestaUnavailableIfTimePass = require("./Services/makeJestaUnavailableIfTimePass");
 require('dotenv').config({path: "/home/cs122/IdeaProjects/Jesta-Server/.env"});
 
 const logger = require("./logger");
@@ -52,7 +53,7 @@ async function startApolloServer(typeDefs, resolvers) {
     // endregion
 
     // region init app services
-    const every15minServices = [notifyOwnerJestaExecutionSoon,notifyExecutorJestaExecutionSoon]
+    const every15minServices = [notifyOwnerJestaExecutionSoon,notifyExecutorJestaExecutionSoon, makeJestaUnavailableIfTimePass]
     const everyDayServices = [mostVolunteeredService]
     serviceManager.start(everyDayServices, every15minServices)
     // endregion
