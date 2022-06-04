@@ -75,9 +75,8 @@ exports.updateOne = async (params, token) => {
 exports.findByRadios = async (params) => {
     let query = {
         "sourceAddress.location" : {
-                $geoWithin: {
-                    $centerSphere: [params.center,kmToRadian(params["radius"])]
-                }
+                    $near: params.center ,
+                    $maxDistance: kmToRadian(params["radius"])
         }
     };
     return await Favor.find(query).exec();
