@@ -76,7 +76,7 @@ exports.findByRadios = async (params) => {
     let query = {
         "sourceAddress.location" : {
                 $geoWithin: {
-                    $centerSphere: [params.center, kmToRadian(params["radius"] * 0.99)]
+                    $centerSphere: [params.center,params["radius"]]
                 }
         }
     };
