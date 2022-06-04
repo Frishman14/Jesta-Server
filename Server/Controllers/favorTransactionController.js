@@ -302,7 +302,7 @@ const sendMedalNotification = async (user) => {
             await User.updateOne({"_id": userId}, {$set: {"medal": 1000}}).exec();
             break;
         default:
-            sentToOneUserMessage("notificationToken",message(1000),"high")
+            return
     }
 }
 
