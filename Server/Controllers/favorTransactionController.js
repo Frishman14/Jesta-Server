@@ -258,18 +258,20 @@ const rateUserAndAddJesta = async (userId, rating, jestaExecuted) => {
         let currentRating = isNaN(user["rating"]) ? 5 : user["rating"];
         let newRating = ((numOfRates * currentRating) + rating)/(numOfRates+1);
 
+        let numberOfExecutedJestaForMedal = user["numberOfExecutedJestaForMedal"]
         let numberOfExecutedJesta = user["numberOfExecutedJesta"]
         if (rating > 3 && jestaExecuted) {
             let user = User.updateOne({"_id": userId}, {
                 $set: {
                     "numberOfRates": numOfRates + 1,
                     "rating": newRating,
-                    "numberOfExecutedJesta": numberOfExecutedJesta + 1
+                    "numberOfExecutedJestaForMedal": numberOfExecutedJestaForMedal + 1,
+                    "numberOfExecutedJesta": numberOfExecutedJesta + 1,
                 }
             }).exec();
             sendMedalNotification(user)
         } else {
-            User.updateOne({ "_id": userId },{$set : {"numberOfRates" : numOfRates + 1, "rating": newRating}}).exec();
+            User.updateOne({ "_id": userId },{$set : {"numberOfRates" : numOfRates + 1, "rating": newRating, "numberOfExecutedJesta": numberOfExecutedJesta + 1}}).exec();
             sendMedalNotification(user)
         }
     })
@@ -279,7 +281,7 @@ const sendMedalNotification = async (user) => {
     if (user["notificationToken"] === null || user["notificationToken"] === undefined) {
         return;
     }
-    let numOfExecuted = user["numberOfExecutedJesta"];
+    let numOfExecuted = user["numberOfExecutedJestaForMedal"];
     switch (numOfExecuted) {
         case 10:
             sentToOneUserMessage("notificationToken",message(10),"high")

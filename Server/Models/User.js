@@ -70,6 +70,10 @@ let userSchema = module.exports = mongoose.Schema({
         type: Number,
         default: 1
     },
+    numberOfExecutedJestaForMedal: {
+        type: Number,
+        default: 0
+    },
     numberOfExecutedJesta: {
         type: Number,
         default: 0
